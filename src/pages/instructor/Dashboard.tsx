@@ -77,30 +77,35 @@ export default function InstructorDashboard() {
         <>
           {/* Stat cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-                Assigned Sections
+            {[
+              { label: 'Assigned Sections', value: assignments.length, color: '#534AB7' },
+              { label: 'Hours Assigned', value: `${totalHours}h`, color: '#0F6E56' },
+              { label: 'Hours Remaining', value: `${remainingHours}h`, color: remainingHours < 6 ? '#A32D2D' : '#1A1A2E' }
+            ].map(card => (
+              <div
+                key={card.label}
+                className="stat-card"
+                style={{
+                  background: 'white', borderRadius: 12, padding: 20,
+                  border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
+                  position: 'relative', overflow: 'hidden'
+                }}
+              >
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: card.color }} />
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
+                  {card.label}
+                </div>
+                <div style={{
+                  fontSize: 36, fontWeight: 700, color: card.color,
+                  backgroundImage: `linear-gradient(135deg, ${card.color}, ${card.color}cc)`,
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
+                  {card.value}
+                </div>
               </div>
-              <div style={{ fontSize: 36, fontWeight: 700, color: '#534AB7' }}>
-                {assignments.length}
-              </div>
-            </div>
-            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-                Hours Assigned
-              </div>
-              <div style={{ fontSize: 36, fontWeight: 700, color: '#0F6E56' }}>
-                {totalHours}h
-              </div>
-            </div>
-            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-                Hours Remaining
-              </div>
-              <div style={{ fontSize: 36, fontWeight: 700, color: remainingHours < 6 ? '#A32D2D' : '#1A1A2E' }}>
-                {remainingHours}h
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Workload bar */}

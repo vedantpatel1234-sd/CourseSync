@@ -49,10 +49,12 @@ export default function CoordinatorDashboard() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           {cards.map(card => (
-            <div key={card.label} style={{
+            <div key={card.label} className="stat-card" style={{
               background: 'white', borderRadius: 12,
-              padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)'
+              padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
+              position: 'relative', overflow: 'hidden'
             }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: card.color }} />
               <div style={{
                 display: 'inline-block', padding: '4px 10px',
                 borderRadius: 20, background: card.bg,
@@ -61,7 +63,13 @@ export default function CoordinatorDashboard() {
               }}>
                 {card.label}
               </div>
-              <div style={{ fontSize: 36, fontWeight: 700, color: card.color }}>
+              <div style={{
+                fontSize: 36, fontWeight: 700, color: card.color,
+                backgroundImage: `linear-gradient(135deg, ${card.color}, ${card.color}cc)`,
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
                 {card.value}
               </div>
             </div>
