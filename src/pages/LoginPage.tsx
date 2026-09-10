@@ -43,8 +43,8 @@ export default function LoginPage() {
         padding: 40,
         width: '100%',
         maxWidth: 420,
-        border: '1px solid rgba(0,0,0,0.07)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.06)'
+        border: '1px solid rgba(0,0,0,0.06)',
+        boxShadow: 'var(--shadow-pop)'
       }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1A1A2E', marginBottom: 6 }}>
           Welcome back
@@ -131,7 +131,7 @@ export default function LoginPage() {
             style={{
               width: '100%',
               padding: '12px 0',
-              background: loading ? '#a09ad4' : '#534AB7',
+              background: loading ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
               color: 'white',
               border: 'none',
               borderRadius: 10,

@@ -189,7 +189,7 @@ export default function AdminSections() {
         background: 'white',
         borderRadius: 12,
         padding: 24,
-        border: '1px solid rgba(0,0,0,0.07)',
+        border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
         marginBottom: 24
       }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1A1A2E', marginBottom: 16 }}>
@@ -294,7 +294,7 @@ export default function AdminSections() {
             type="submit"
             style={{
               padding: '10px 24px',
-              background: '#534AB7',
+              background: 'linear-gradient(135deg, #6C5FD6, #534AB7)',
               color: 'white',
               border: 'none',
               borderRadius: 9,
@@ -313,7 +313,7 @@ export default function AdminSections() {
       <div style={{
         background: 'white',
         borderRadius: 12,
-        border: '1px solid rgba(0,0,0,0.07)',
+        border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
         overflow: 'hidden'
       }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>

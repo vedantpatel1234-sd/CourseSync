@@ -30,7 +30,7 @@ export default function AdminHelp() {
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1A1A2E', marginBottom: 16 }}>Guides</h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {guides.map(guide => (
-            <div key={guide.title} style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.07)' }}>
+            <div key={guide.title} style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)' }}>
               <h3 style={{ fontSize: 14, fontWeight: 600, color: '#534AB7', marginBottom: 12 }}>{guide.title}</h3>
               <ul style={{ paddingLeft: 18, margin: 0 }}>
                 {guide.items.map((item, i) => (
@@ -44,7 +44,7 @@ export default function AdminHelp() {
 
       <div style={{ marginBottom: 32 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1A1A2E', marginBottom: 16 }}>Frequently Asked Questions</h2>
-        <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+        <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', overflow: 'hidden' }}>
           {faqs.map((faq, i) => (
             <div key={i} style={{ borderBottom: i < faqs.length - 1 ? '1px solid rgba(0,0,0,0.06)' : 'none' }}>
               <button
@@ -67,7 +67,7 @@ export default function AdminHelp() {
           <div style={{ fontSize: 14, fontWeight: 600, color: '#534AB7', marginBottom: 4 }}>Still need help?</div>
           <div style={{ fontSize: 13, color: '#534AB7' }}>Reach out to our support team and we will get back to you shortly.</div>
         </div>
-        <a href="mailto:support@coursesync.ca" style={{ padding: '9px 20px', background: '#534AB7', color: 'white', borderRadius: 9, fontSize: 13, fontWeight: 600, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap' }}>
+        <a href="mailto:support@coursesync.ca" style={{ padding: '9px 20px', background: 'linear-gradient(135deg, #6C5FD6, #534AB7)', color: 'white', borderRadius: 9, fontSize: 13, fontWeight: 600, textDecoration: 'none', fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap' }}>
           Contact Support
         </a>
       </div>

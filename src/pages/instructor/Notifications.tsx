@@ -134,7 +134,7 @@ export default function InstructorNotifications() {
         )}
       </div>
 
-      <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden', marginBottom: 32 }}>
+      <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', overflow: 'hidden', marginBottom: 32 }}>
         {notifications.length === 0 ? (
           <div style={{ padding: 32, textAlign: 'center', color: '#6B6B80', fontSize: 14 }}>
             Nothing yet — you'll see activity here when you're assigned, removed, or verified.
@@ -165,7 +165,7 @@ export default function InstructorNotifications() {
       <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1A1A2E', marginBottom: 12 }}>
         Preferences
       </h2>
-      <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden', marginBottom: 24 }}>
+      <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', overflow: 'hidden', marginBottom: 24 }}>
         {items.map((item, i) => (
           <div
             key={item.key}
@@ -221,7 +221,7 @@ export default function InstructorNotifications() {
         disabled={saving}
         style={{
           padding: '10px 24px',
-          background: saving ? '#a09ad4' : '#534AB7',
+          background: saving ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
           color: 'white',
           border: 'none',
           borderRadius: 9,

@@ -69,12 +69,13 @@ export default function CoordinatorInstructors() {
             return (
               <div key={instructor.id} style={{
                 background: 'white', borderRadius: 12, padding: 20,
-                border: '1px solid rgba(0,0,0,0.07)',
+                border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
                 display: 'flex', alignItems: 'center', gap: 16
               }}>
                 <div style={{
                   width: 44, height: 44, borderRadius: '50%',
-                  background: '#534AB7', color: 'white',
+                  background: 'linear-gradient(135deg, #6C5FD6, #534AB7)',
+                  boxShadow: '0 2px 6px rgba(83,74,183,0.3)', color: 'white',
                   display: 'flex', alignItems: 'center',
                   justifyContent: 'center', fontSize: 14,
                   fontWeight: 700, flexShrink: 0

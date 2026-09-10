@@ -82,7 +82,7 @@ export default function InstructorQualifications() {
               { label: 'Verified', value: verified, color: '#0F6E56', bg: '#EAF3DE' },
               { label: 'Pending', value: pending, color: '#854F0B', bg: '#FAEEDA' },
             ].map(card => (
-              <div key={card.label} style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.07)' }}>
+              <div key={card.label} style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
                   {card.label}
                 </div>

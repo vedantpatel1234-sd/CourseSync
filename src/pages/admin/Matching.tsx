@@ -307,7 +307,7 @@ export default function AdminMatching() {
           disabled={loading}
           style={{
             padding: '11px 28px',
-            background: loading ? '#a09ad4' : '#534AB7',
+            background: loading ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
             color: 'white', border: 'none', borderRadius: 9,
             fontSize: 14, fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',
@@ -364,7 +364,7 @@ Skipped {excludedCount} instructor match{excludedCount > 1 ? 'es' : ''} due to s
       {hasRun && (
         <div style={{
           background: 'white', borderRadius: 12,
-          border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden'
+          border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', overflow: 'hidden'
         }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>

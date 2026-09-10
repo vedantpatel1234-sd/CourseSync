@@ -97,7 +97,7 @@ export default function AdminAudit() {
               padding: '7px 16px',
               borderRadius: 20,
               border: filter === f ? 'none' : '1px solid rgba(0,0,0,0.07)',
-              background: filter === f ? '#534AB7' : 'white',
+              background: filter === f ? 'linear-gradient(135deg, #6C5FD6, #534AB7)' : 'white',
               color: filter === f ? 'white' : '#6B6B80',
               fontSize: 13,
               fontWeight: 500,
@@ -114,7 +114,7 @@ export default function AdminAudit() {
       <div style={{
         background: 'white',
         borderRadius: 12,
-        border: '1px solid rgba(0,0,0,0.07)',
+        border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
         overflow: 'hidden'
       }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>

@@ -254,7 +254,7 @@ export default function AdminImport() {
               padding: '8px 20px',
               borderRadius: 20,
               border: importType === tab.value ? 'none' : '1px solid rgba(0,0,0,0.07)',
-              background: importType === tab.value ? '#534AB7' : 'white',
+              background: importType === tab.value ? 'linear-gradient(135deg, #6C5FD6, #534AB7)' : 'white',
               color: importType === tab.value ? 'white' : '#6B6B80',
               fontSize: 13,
               fontWeight: 500,
@@ -369,7 +369,7 @@ export default function AdminImport() {
                 disabled={!requiredFieldsMapped}
                 style={{
                   padding: '9px 20px',
-                  background: requiredFieldsMapped ? '#534AB7' : '#a09ad4',
+                  background: requiredFieldsMapped ? 'linear-gradient(135deg, #6C5FD6, #534AB7)' : '#a09ad4',
                   color: 'white', border: 'none', borderRadius: 8,
                   fontSize: 13, fontWeight: 600,
                   cursor: requiredFieldsMapped ? 'pointer' : 'not-allowed',
@@ -387,7 +387,7 @@ export default function AdminImport() {
         <div style={{
           background: 'white',
           borderRadius: 12,
-          border: '1px solid rgba(0,0,0,0.07)',
+          border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
           overflow: 'hidden',
           marginBottom: 24
         }}>
@@ -464,7 +464,7 @@ export default function AdminImport() {
           disabled={importing || validating || mappedRows.length - issueCount === 0}
           style={{
             padding: '11px 32px',
-            background: (importing || validating || mappedRows.length - issueCount === 0) ? '#a09ad4' : '#534AB7',
+            background: (importing || validating || mappedRows.length - issueCount === 0) ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
             color: 'white',
             border: 'none',
             borderRadius: 9,

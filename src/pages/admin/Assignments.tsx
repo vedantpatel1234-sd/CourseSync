@@ -261,7 +261,7 @@ export default function AdminAssignments() {
       {/* Assign form */}
       <div style={{
         background: 'white', borderRadius: 12, padding: 24,
-        border: '1px solid rgba(0,0,0,0.07)', marginBottom: 24
+        border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', marginBottom: 24
       }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1A1A2E', marginBottom: 16 }}>
           New Assignment
@@ -326,7 +326,7 @@ export default function AdminAssignments() {
             disabled={assigning || activeConflicts.length > 0}
             style={{
               padding: '10px 24px',
-              background: (assigning || activeConflicts.length > 0) ? '#a09ad4' : '#534AB7',
+              background: (assigning || activeConflicts.length > 0) ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
               color: 'white', border: 'none', borderRadius: 9,
               fontSize: 14, fontWeight: 600,
               cursor: (assigning || activeConflicts.length > 0) ? 'not-allowed' : 'pointer',
@@ -341,7 +341,7 @@ export default function AdminAssignments() {
       {/* Assignments table */}
       <div style={{
         background: 'white', borderRadius: 12,
-        border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden'
+        border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', overflow: 'hidden'
       }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(0,0,0,0.07)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1A1A2E' }}>

@@ -77,7 +77,7 @@ export default function InstructorDashboard() {
         <>
           {/* Stat cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
                 Assigned Sections
               </div>
@@ -85,7 +85,7 @@ export default function InstructorDashboard() {
                 {assignments.length}
               </div>
             </div>
-            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
                 Hours Assigned
               </div>
@@ -93,7 +93,7 @@ export default function InstructorDashboard() {
                 {totalHours}h
               </div>
             </div>
-            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.07)' }}>
+            <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)' }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
                 Hours Remaining
               </div>
@@ -104,7 +104,7 @@ export default function InstructorDashboard() {
           </div>
 
           {/* Workload bar */}
-          <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.07)', marginBottom: 24 }}>
+          <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', marginBottom: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#6B6B80', marginBottom: 8 }}>
               <span style={{ fontWeight: 600 }}>Workload</span>
               <span>{totalHours}/{maxHours}h</span>
@@ -121,7 +121,7 @@ export default function InstructorDashboard() {
           </div>
 
           {/* Assignments table */}
-          <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+          <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', overflow: 'hidden' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>

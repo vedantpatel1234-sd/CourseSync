@@ -257,7 +257,7 @@ export default function AdminInstructors() {
 
       <div style={{
         background: 'white', borderRadius: 12, padding: 24,
-        border: '1px solid rgba(0,0,0,0.07)', marginBottom: 24
+        border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', marginBottom: 24
       }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1A1A2E', marginBottom: 16 }}>
           Add New Instructor
@@ -274,7 +274,7 @@ export default function AdminInstructors() {
               disabled={parsingResume}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                padding: '8px 16px', background: parsingResume ? '#a09ad4' : '#534AB7',
+                padding: '8px 16px', background: parsingResume ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
                 color: 'white', border: 'none', borderRadius: 8,
                 fontSize: 13, fontWeight: 600,
                 cursor: parsingResume ? 'not-allowed' : 'pointer',
@@ -367,7 +367,7 @@ export default function AdminInstructors() {
             disabled={adding}
             style={{
               padding: '10px 24px',
-              background: adding ? '#a09ad4' : '#534AB7',
+              background: adding ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
               color: 'white', border: 'none', borderRadius: 9,
               fontSize: 14, fontWeight: 600,
               cursor: adding ? 'not-allowed' : 'pointer',
@@ -392,7 +392,7 @@ export default function AdminInstructors() {
             return (
               <div key={instructor.id} style={{
                 background: 'white', borderRadius: 12,
-                border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden'
+                border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', overflow: 'hidden'
               }}>
                 <div style={{
                   padding: 20,
@@ -400,7 +400,8 @@ export default function AdminInstructors() {
                 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: '50%',
-                    background: '#534AB7', color: 'white',
+                    background: 'linear-gradient(135deg, #6C5FD6, #534AB7)',
+                    boxShadow: '0 2px 6px rgba(83,74,183,0.3)', color: 'white',
                     display: 'flex', alignItems: 'center',
                     justifyContent: 'center', fontSize: 14,
                     fontWeight: 700, flexShrink: 0

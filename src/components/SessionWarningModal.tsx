@@ -74,7 +74,7 @@ export default function SessionWarningModal({ secondsLeft, onStayLoggedIn, onLog
             onClick={onStayLoggedIn}
             style={{
               flex: 1, padding: '11px 0',
-              background: '#534AB7', color: 'white',
+              background: 'linear-gradient(135deg, #6C5FD6, #534AB7)', color: 'white',
               border: 'none', borderRadius: 10,
               fontSize: 14, fontWeight: 600, cursor: 'pointer',
               fontFamily: 'DM Sans, sans-serif'

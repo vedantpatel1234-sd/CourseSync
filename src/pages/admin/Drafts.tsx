@@ -265,7 +265,7 @@ export default function AdminDrafts() {
             disabled={generating || !aiTermId}
             style={{
               padding: '10px 24px',
-              background: (generating || !aiTermId) ? '#a09ad4' : '#534AB7',
+              background: (generating || !aiTermId) ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
               color: 'white', border: 'none', borderRadius: 9,
               fontSize: 14, fontWeight: 600,
               cursor: (generating || !aiTermId) ? 'not-allowed' : 'pointer',
@@ -316,7 +316,7 @@ export default function AdminDrafts() {
       {/* Add draft form */}
       <div style={{
         background: 'white', borderRadius: 12, padding: 24,
-        border: '1px solid rgba(0,0,0,0.07)', marginBottom: 24
+        border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', marginBottom: 24
       }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1A1A2E', marginBottom: 16 }}>
           Create New Draft
@@ -357,7 +357,7 @@ export default function AdminDrafts() {
             disabled={adding}
             style={{
               padding: '10px 24px',
-              background: adding ? '#a09ad4' : '#534AB7',
+              background: adding ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
               color: 'white', border: 'none', borderRadius: 9,
               fontSize: 14, fontWeight: 600,
               cursor: adding ? 'not-allowed' : 'pointer',
@@ -384,7 +384,7 @@ export default function AdminDrafts() {
           {drafts.map(draft => (
             <div key={draft.id} style={{
               background: 'white', borderRadius: 12, padding: 20,
-              border: '1px solid rgba(0,0,0,0.07)',
+              border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
               display: 'flex', alignItems: 'center', gap: 16
             }}>
               <div style={{

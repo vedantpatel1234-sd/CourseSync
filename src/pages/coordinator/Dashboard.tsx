@@ -51,7 +51,7 @@ export default function CoordinatorDashboard() {
           {cards.map(card => (
             <div key={card.label} style={{
               background: 'white', borderRadius: 12,
-              padding: 20, border: '1px solid rgba(0,0,0,0.07)'
+              padding: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)'
             }}>
               <div style={{
                 display: 'inline-block', padding: '4px 10px',

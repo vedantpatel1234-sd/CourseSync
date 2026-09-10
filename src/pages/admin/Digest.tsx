@@ -96,7 +96,7 @@ export default function AdminDigest() {
             disabled={generating}
             style={{
               padding: '10px 24px',
-              background: generating ? '#a09ad4' : '#534AB7',
+              background: generating ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
               color: 'white', border: 'none', borderRadius: 9,
               fontSize: 14, fontWeight: 600,
               cursor: generating ? 'not-allowed' : 'pointer',
@@ -122,7 +122,7 @@ export default function AdminDigest() {
           {digests.map(digest => (
             <div key={digest.id} style={{
               background: 'white', borderRadius: 12, padding: 24,
-              border: '1px solid rgba(0,0,0,0.07)'
+              border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)'
             }}>
               <div style={{ fontSize: 12, color: '#6B6B80', marginBottom: 8 }}>
                 {formatDate(digest.created_at)}

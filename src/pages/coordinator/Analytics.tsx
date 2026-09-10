@@ -130,7 +130,7 @@ export default function CoordinatorAnalytics() {
         ].map(card => (
           <div key={card.label} style={{
             background: 'white', borderRadius: 12, padding: 20,
-            border: '1px solid rgba(0,0,0,0.07)'
+            border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)'
           }}>
             <div style={{
               display: 'inline-block', padding: '4px 10px',
@@ -151,7 +151,7 @@ export default function CoordinatorAnalytics() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
         <div style={{
           background: 'white', borderRadius: 12, padding: 24,
-          border: '1px solid rgba(0,0,0,0.07)'
+          border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)'
         }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1A1A2E', marginBottom: 20 }}>
             Instructor Workload
@@ -171,7 +171,7 @@ export default function CoordinatorAnalytics() {
 
         <div style={{
           background: 'white', borderRadius: 12, padding: 24,
-          border: '1px solid rgba(0,0,0,0.07)'
+          border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)'
         }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#1A1A2E', marginBottom: 20 }}>
             Section Fill Status

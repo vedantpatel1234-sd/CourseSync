@@ -79,18 +79,23 @@ export default function Sidebar() {
       width: 208,
       minHeight: '100vh',
       background: 'white',
-      borderRight: '1px solid rgba(0,0,0,0.07)',
+      borderRight: '1px solid rgba(0,0,0,0.06)',
+      boxShadow: '2px 0 12px rgba(16,24,40,0.04)',
       display: 'flex',
       flexDirection: 'column',
       flexShrink: 0,
-      fontFamily: 'DM Sans, sans-serif'
+      fontFamily: 'DM Sans, sans-serif',
+      position: 'relative',
+      zIndex: 1
     }}>
       {/* Logo */}
       <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
             width: 36, height: 36, borderRadius: 10,
-            background: '#534AB7', display: 'flex',
+            background: 'linear-gradient(135deg, #6C5FD6, #534AB7)',
+            boxShadow: '0 3px 8px rgba(83,74,183,0.35)',
+            display: 'flex',
             alignItems: 'center', justifyContent: 'center'
           }}>
             <span style={{ fontSize: 18 }}>🎓</span>
@@ -109,6 +114,7 @@ export default function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === '/admin' || item.to === '/instructor' || item.to === '/coordinator'}
+            className="nav-link"
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',
@@ -119,8 +125,13 @@ export default function Sidebar() {
               textDecoration: 'none',
               fontSize: 13.5,
               fontWeight: isActive ? 600 : 400,
-              color: isActive ? '#534AB7' : '#6B6B80',
-              background: isActive ? '#EEEDFE' : 'transparent',
+              ...(isActive
+                ? {
+                    color: '#534AB7',
+                    background: 'linear-gradient(90deg, #EEEDFE, #F5F4FE)',
+                    boxShadow: 'inset 3px 0 0 #534AB7'
+                  }
+                : {})
             })}
           >
             {item.icon}
@@ -144,7 +155,9 @@ export default function Sidebar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <div style={{
             width: 32, height: 32, borderRadius: '50%',
-            background: '#534AB7', color: 'white',
+            background: 'linear-gradient(135deg, #6C5FD6, #534AB7)',
+            boxShadow: '0 2px 6px rgba(83,74,183,0.3)',
+            color: 'white',
             display: 'flex', alignItems: 'center',
             justifyContent: 'center', fontSize: 12, fontWeight: 600
           }}>
@@ -161,6 +174,7 @@ export default function Sidebar() {
         </div>
         <button
           onClick={handleSignOut}
+          className="signout-btn"
           style={{
             width: '100%', display: 'flex', alignItems: 'center',
             gap: 8, padding: '7px 10px', borderRadius: 8,

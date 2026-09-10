@@ -208,7 +208,7 @@ export default function InstructorPreferences() {
           disabled={saving}
           style={{
             padding: '10px 24px',
-            background: saving ? '#a09ad4' : '#534AB7',
+            background: saving ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
             color: 'white', border: 'none', borderRadius: 9,
             fontSize: 14, fontWeight: 600,
             cursor: saving ? 'not-allowed' : 'pointer',
@@ -276,7 +276,7 @@ export default function InstructorPreferences() {
             ) : available.map(section => (
               <div key={section.id} style={{
                 background: 'white', borderRadius: 10, padding: '12px 16px',
-                border: '1px solid rgba(0,0,0,0.07)',
+                border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12
               }}>
                 <div>

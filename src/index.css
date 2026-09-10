@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 12px rgba(16, 24, 40, 0.06);
+  --shadow-card-hover: 0 2px 4px rgba(16, 24, 40, 0.06), 0 10px 28px rgba(83, 74, 183, 0.14);
+  --shadow-pop: 0 4px 10px rgba(16, 24, 40, 0.08), 0 16px 40px rgba(16, 24, 40, 0.10);
+  --brand: #534AB7;
+  --brand-light: #6C5FD6;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,6 +18,71 @@
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background-color: #F4F3F0;
+  background: linear-gradient(180deg, #FAFAFC 0%, #F4F3F0 320px);
+  background-attachment: fixed;
   color: #1A1A2E;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Give every button in the app tactile depth without touching each
+   component's inline styles — hover/press physics only, never color. */
+button:not(:disabled) {
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+button:not(:disabled):hover {
+  filter: brightness(1.04);
+}
+button:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+table tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.nav-link {
+  color: #6B6B80;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.nav-link:hover {
+  background: #F7F7FB;
+  color: #534AB7;
+}
+
+.signout-btn {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.signout-btn:hover {
+  background: #FCEBEB !important;
+  color: #A32D2D !important;
+}
+
+.stat-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+::selection {
+  background: rgba(83, 74, 183, 0.2);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(83, 74, 183, 0.18);
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(83, 74, 183, 0.32);
+  background-clip: content-box;
 }

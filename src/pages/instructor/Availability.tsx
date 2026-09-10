@@ -110,7 +110,7 @@ export default function InstructorAvailability() {
           disabled={saving}
           style={{
             padding: '10px 24px',
-            background: saving ? '#a09ad4' : '#534AB7',
+            background: saving ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
             color: 'white',
             border: 'none',
             borderRadius: 9,
@@ -137,7 +137,7 @@ export default function InstructorAvailability() {
         ))}
       </div>
 
-      <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+      <div style={{ background: 'white', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>

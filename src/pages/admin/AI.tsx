@@ -356,7 +356,7 @@ export default function AdminAI() {
                       disabled={confirming}
                       style={{
                         padding: '8px 18px',
-                        background: confirming ? '#a09ad4' : '#534AB7',
+                        background: confirming ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
                         color: 'white', border: 'none', borderRadius: 8,
                         fontSize: 13, fontWeight: 600,
                         cursor: confirming ? 'not-allowed' : 'pointer',
@@ -401,7 +401,7 @@ export default function AdminAI() {
               padding: '12px 16px',
               borderRadius: '16px 16px 16px 4px',
               background: 'white',
-              border: '1px solid rgba(0,0,0,0.07)',
+              border: '1px solid rgba(0,0,0,0.06)', boxShadow: 'var(--shadow-card)',
               color: '#6B6B80',
               fontSize: 14
             }}>
@@ -443,7 +443,7 @@ export default function AdminAI() {
           disabled={loading || !input.trim() || !!pendingAction}
           style={{
             padding: '12px 20px',
-            background: (loading || !input.trim() || pendingAction) ? '#a09ad4' : '#534AB7',
+            background: (loading || !input.trim() || pendingAction) ? '#a09ad4' : 'linear-gradient(135deg, #6C5FD6, #534AB7)',
             color: 'white',
             border: 'none',
             borderRadius: 10,
