@@ -3,9 +3,9 @@ import Sidebar from './Sidebar'
 
 export default function AppLayout() {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'transparent' }}>
+    <div style={{ display: 'flex', height: '100vh', background: 'transparent', overflow: 'hidden' }}>
       <Sidebar />
-      <main style={{ flex: 1, minWidth: 0, overflowX: 'hidden' }}>
+      <main style={{ flex: 1, minWidth: 0, overflowY: 'auto', overflowX: 'hidden' }}>
         <Outlet />
       </main>
     </div>

@@ -45,6 +45,7 @@ export default function Sidebar() {
   const { user, signOut } = useAuthStore()
   const navigate = useNavigate()
   const [unreadCount, setUnreadCount] = useState(0)
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
 
   useEffect(() => {
     if (!user || user.role !== 'instructor') return
@@ -67,6 +68,7 @@ export default function Sidebar() {
     coordinatorNav
 
   const handleSignOut = async () => {
+    setShowSignOutConfirm(false)
     await signOut()
     navigate('/login')
   }
@@ -77,7 +79,7 @@ export default function Sidebar() {
   return (
     <div style={{
       width: 208,
-      minHeight: '100vh',
+      height: '100vh',
       background: 'white',
       borderRight: '1px solid rgba(0,0,0,0.06)',
       boxShadow: '2px 0 12px rgba(16,24,40,0.04)',
@@ -173,7 +175,7 @@ export default function Sidebar() {
           </div>
         </div>
         <button
-          onClick={handleSignOut}
+          onClick={() => setShowSignOutConfirm(true)}
           className="signout-btn"
           style={{
             width: '100%', display: 'flex', alignItems: 'center',
@@ -187,6 +189,49 @@ export default function Sidebar() {
           Sign out
         </button>
       </div>
+
+      {showSignOutConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(26,26,46,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
+        }}>
+          <div style={{
+            background: 'white', borderRadius: 14, padding: 28,
+            width: 360, maxWidth: '90vw',
+            fontFamily: 'DM Sans, sans-serif',
+            boxShadow: 'var(--shadow-pop)'
+          }}>
+            <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
+              Sign out?
+            </h2>
+            <p style={{ fontSize: 13, color: '#6B6B80', marginBottom: 24 }}>
+              You'll need to sign back in to access {user.full_name}'s account.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+              <button
+                onClick={() => setShowSignOutConfirm(false)}
+                style={{
+                  padding: '9px 18px', background: '#f3f4f6', color: '#6B6B80',
+                  border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSignOut}
+                style={{
+                  padding: '9px 18px', background: '#A32D2D', color: 'white',
+                  border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
+                }}
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
