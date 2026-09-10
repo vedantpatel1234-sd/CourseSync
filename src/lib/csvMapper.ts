@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk'
-import { anthropic, COPILOT_MODEL } from './anthropic'
+import { createMessage, COPILOT_MODEL } from './anthropic'
 
 export interface TargetField {
   key: string
@@ -32,7 +32,7 @@ const MAPPING_TOOL: Anthropic.Tool = {
 const SYSTEM_PROMPT = `You map spreadsheet column headers to a fixed set of target fields for a data import tool. For each target field, pick the CSV header that clearly corresponds to it by meaning, not just exact text — e.g. "Instructor Email" or "E-mail Address" matches a target field with key "email"; "Course #" or "Code" matches "code". Only match a header when you're genuinely confident — leave csv_header as an empty string if nothing in the CSV corresponds to a target field. Never invent a header that isn't in the list you were given. Call submit_column_mapping exactly once, with one entry per target field.`
 
 export async function suggestColumnMapping(csvHeaders: string[], targetFields: TargetField[]): Promise<Record<string, string | null>> {
-  const response = await anthropic.messages.create({
+  const response = await createMessage({
     model: COPILOT_MODEL,
     max_tokens: 1024,
     system: SYSTEM_PROMPT,

@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk'
-import { anthropic, COPILOT_MODEL } from './anthropic'
+import { createMessage, COPILOT_MODEL } from './anthropic'
 import { supabase } from './supabase'
 import { formatDayTime } from './schedule'
 import { checkAssignmentConflicts, type ExistingAssignmentInfo, type UnavailableSlot } from './conflicts'
@@ -220,7 +220,7 @@ export async function runAutoScheduler(termId: string): Promise<AutoScheduleResu
     preferences: preferences.map(p => ({ instructor_id: p.instructor_id, section_id: p.section_id, rank: p.rank }))
   }
 
-  const response = await anthropic.messages.create({
+  const response = await createMessage({
     model: COPILOT_MODEL,
     max_tokens: 8192,
     system: SYSTEM_PROMPT,

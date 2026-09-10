@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type Anthropic from '@anthropic-ai/sdk'
-import { anthropic, COPILOT_MODEL } from '../../lib/anthropic'
+import { createMessage, COPILOT_MODEL } from '../../lib/anthropic'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../stores/authStore'
 import { logAction } from '../../lib/audit'
@@ -107,7 +107,7 @@ export default function AdminAI() {
         return
       }
 
-      const response = await anthropic.messages.create({
+      const response = await createMessage({
         model: COPILOT_MODEL,
         max_tokens: 8192,
         system: SYSTEM_PROMPT,

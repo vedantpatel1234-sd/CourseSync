@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk'
-import { anthropic, COPILOT_MODEL } from './anthropic'
+import { createMessage, COPILOT_MODEL } from './anthropic'
 import { supabase } from './supabase'
 
 export interface UnfilledSectionStat {
@@ -120,7 +120,7 @@ async function computeStats(): Promise<DigestStats> {
 export async function generateWeeklyDigest(): Promise<DigestResult> {
   const stats = await computeStats()
 
-  const response = await anthropic.messages.create({
+  const response = await createMessage({
     model: COPILOT_MODEL,
     max_tokens: 2048,
     system: SYSTEM_PROMPT,

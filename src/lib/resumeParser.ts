@@ -1,5 +1,5 @@
 import type Anthropic from '@anthropic-ai/sdk'
-import { anthropic, COPILOT_MODEL } from './anthropic'
+import { createMessage, COPILOT_MODEL } from './anthropic'
 import { supabase } from './supabase'
 
 export interface QualificationSuggestion {
@@ -64,8 +64,10 @@ export async function parseResume(file: File): Promise<ParsedResume> {
   if (file.type !== 'application/pdf') {
     throw new Error('Please upload a PDF file.')
   }
-  if (file.size > 10 * 1024 * 1024) {
-    throw new Error('File is too large — please upload a PDF under 10MB.')
+  if (file.size > 4 * 1024 * 1024) {
+    // Base64-encoded and sent through the ai-proxy Edge Function, which has a
+    // tighter request-body limit than a direct browser-to-Anthropic call did.
+    throw new Error('File is too large — please upload a PDF under 4MB.')
   }
 
   const [base64, coursesResult] = await Promise.all([
@@ -74,7 +76,7 @@ export async function parseResume(file: File): Promise<ParsedResume> {
   ])
   const courses = coursesResult.data || []
 
-  const response = await anthropic.messages.create({
+  const response = await createMessage({
     model: COPILOT_MODEL,
     max_tokens: 2048,
     system: SYSTEM_PROMPT,
