@@ -24,7 +24,7 @@ export default function CoordinatorAssignments() {
     const fetchAssignments = async () => {
       const { data } = await supabase
         .from('assignments')
-        .select('*, instructor:profiles(full_name, email), section:sections(section_number, status, day_of_week, time_slot, course:courses(code, name), term:terms(name))')
+        .select('*, instructor:profiles!assignments_instructor_id_fkey(full_name, email), section:sections(section_number, status, day_of_week, time_slot, course:courses(code, name), term:terms(name))')
         .is('draft_id', null)
         .neq('status', 'rejected')
 
