@@ -11,6 +11,7 @@ import AdminCourses from './pages/admin/Courses'
 import AdminSections from './pages/admin/Sections'
 import AdminInstructors from './pages/admin/Instructors'
 import AdminAssignments from './pages/admin/Assignments'
+import AdminCalendar from './pages/admin/Calendar'
 import AdminAudit from './pages/admin/Audit'
 import AdminAnalytics from './pages/admin/Analytics'
 import AdminAI from './pages/admin/AI'
@@ -93,6 +94,7 @@ function App() {
           <Route path="sections" element={<AdminSections />} />
           <Route path="instructors" element={<AdminInstructors />} />
           <Route path="assignments" element={<AdminAssignments />} />
+          <Route path="calendar" element={<AdminCalendar />} />
           <Route path="audit" element={<AdminAudit />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="ai" element={<AdminAI />} />
