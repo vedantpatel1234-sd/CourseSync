@@ -3,7 +3,8 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, ClipboardList, Zap, Users, CalendarDays,
   BookOpen, BarChart2, Sparkles, FlaskConical, FileInput,
-  ScrollText, HelpCircle, Star, Bell, LogOut, Newspaper, Calendar, CalendarRange
+  ScrollText, HelpCircle, Star, Bell, LogOut, Newspaper, Calendar, CalendarRange,
+  Menu
 } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { supabase } from '../../lib/supabase'
@@ -48,6 +49,7 @@ export default function Sidebar() {
   const navigate = useNavigate()
   const [unreadCount, setUnreadCount] = useState(0)
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
     if (!user || user.role !== 'instructor') return
@@ -79,7 +81,23 @@ export default function Sidebar() {
     name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
 
   return (
-    <div style={{
+    <>
+      {!mobileOpen && (
+        <button
+          className="sidebar-hamburger"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open menu"
+        >
+          <Menu size={20} color="#534AB7" />
+        </button>
+      )}
+
+      <div
+        className={`sidebar-backdrop${mobileOpen ? ' open' : ''}`}
+        onClick={() => setMobileOpen(false)}
+      />
+
+      <div className={`app-sidebar${mobileOpen ? ' open' : ''}`} style={{
       width: 208,
       height: '100vh',
       background: 'white',
@@ -118,6 +136,7 @@ export default function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.to === '/admin' || item.to === '/instructor' || item.to === '/coordinator'}
+            onClick={() => setMobileOpen(false)}
             className="nav-link"
             style={({ isActive }) => ({
               display: 'flex',
@@ -235,5 +254,6 @@ export default function Sidebar() {
         </div>
       )}
     </div>
+    </>
   )
 }

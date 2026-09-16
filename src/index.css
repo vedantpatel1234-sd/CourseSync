@@ -86,3 +86,63 @@ table tbody tr {
   background: rgba(83, 74, 183, 0.32);
   background-clip: content-box;
 }
+
+/* Mobile layout: the sidebar becomes an off-canvas drawer instead of
+   permanently eating ~55% of a phone-width screen, and every multi-column
+   form/stat grid collapses to one column so cells aren't squeezed to
+   unreadable widths. Both apply only under the breakpoint, so desktop is
+   untouched. */
+.sidebar-hamburger {
+  display: none;
+}
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%) !important;
+    transition: transform 0.25s ease;
+  }
+  .app-sidebar.open {
+    transform: translateX(0) !important;
+    box-shadow: 4px 0 24px rgba(16, 24, 40, 0.2);
+    z-index: 1000;
+  }
+  .sidebar-hamburger {
+    display: flex;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1001;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+  }
+  .sidebar-backdrop.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 46, 0.5);
+    z-index: 999;
+  }
+  main {
+    padding-top: 56px !important;
+  }
+  main > div {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  main div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+}
