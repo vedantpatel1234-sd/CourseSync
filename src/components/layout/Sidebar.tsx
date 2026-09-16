@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, ClipboardList, Zap, Users, CalendarDays,
   BookOpen, BarChart2, Sparkles, FlaskConical, FileInput,
-  ScrollText, HelpCircle, Star, Bell, LogOut, Newspaper, Calendar
+  ScrollText, HelpCircle, Star, Bell, LogOut, Newspaper, Calendar, CalendarRange
 } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { supabase } from '../../lib/supabase'
@@ -15,6 +15,7 @@ const adminNav = [
   { label: 'Matching Engine', to: '/admin/matching', icon: <Zap size={17} /> },
   { label: 'Instructors', to: '/admin/instructors', icon: <Users size={17} /> },
   { label: 'Sections', to: '/admin/sections', icon: <CalendarDays size={17} /> },
+  { label: 'Terms', to: '/admin/terms', icon: <CalendarRange size={17} /> },
   { label: 'Courses', to: '/admin/courses', icon: <BookOpen size={17} /> },
   { label: 'Analytics', to: '/admin/analytics', icon: <BarChart2 size={17} /> },
   { label: 'Scheduling Copilot', to: '/admin/ai', icon: <Sparkles size={17} /> },

@@ -9,6 +9,7 @@ import { supabase } from './lib/supabase'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminCourses from './pages/admin/Courses'
 import AdminSections from './pages/admin/Sections'
+import AdminTerms from './pages/admin/Terms'
 import AdminInstructors from './pages/admin/Instructors'
 import AdminAssignments from './pages/admin/Assignments'
 import AdminCalendar from './pages/admin/Calendar'
@@ -92,6 +93,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="courses" element={<AdminCourses />} />
           <Route path="sections" element={<AdminSections />} />
+          <Route path="terms" element={<AdminTerms />} />
           <Route path="instructors" element={<AdminInstructors />} />
           <Route path="assignments" element={<AdminAssignments />} />
           <Route path="calendar" element={<AdminCalendar />} />
