@@ -4,3 +4,12 @@ import '@testing-library/jest-dom/vitest'
 if (typeof Element !== 'undefined' && !Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {}
 }
+
+// jsdom doesn't implement ResizeObserver; recharts (Analytics page) uses it to size charts.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}
