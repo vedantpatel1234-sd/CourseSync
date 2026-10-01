@@ -16,8 +16,10 @@ interface Section {
   status: string
   day_of_week: string | null
   time_slot: string | null
-  course: { code: string; name: string }
+  course: { code: string; name: string; department: string | null }
 }
+
+const UNCATEGORIZED = 'Uncategorized'
 
 interface Assignment {
   section_id: string
@@ -36,6 +38,7 @@ export default function AdminCalendar() {
   const [sections, setSections] = useState<Section[]>([])
   const [assignments, setAssignments] = useState<Assignment[]>([])
   const [loading, setLoading] = useState(true)
+  const [department, setDepartment] = useState('all')
 
   useEffect(() => {
     const fetchTerms = async () => {
@@ -56,7 +59,7 @@ export default function AdminCalendar() {
       setLoading(true)
       const { data: sectionsData } = await supabase
         .from('sections')
-        .select('id, section_number, hours_required, status, day_of_week, time_slot, course:courses(code, name)')
+        .select('id, section_number, hours_required, status, day_of_week, time_slot, course:courses(code, name, department)')
         .eq('term_id', termId)
 
       const sectionIds = (sectionsData || []).map(s => s.id)
@@ -82,8 +85,17 @@ export default function AdminCalendar() {
     return map
   }, [assignments])
 
-  const scheduledSections = sections.filter(s => s.day_of_week && s.time_slot)
-  const unscheduledSections = sections.filter(s => !s.day_of_week || !s.time_slot)
+  const departments = useMemo(() => {
+    const set = new Set(sections.map(s => s.course.department || UNCATEGORIZED))
+    return Array.from(set).sort()
+  }, [sections])
+
+  const filteredSections = department === 'all'
+    ? sections
+    : sections.filter(s => (s.course.department || UNCATEGORIZED) === department)
+
+  const scheduledSections = filteredSections.filter(s => s.day_of_week && s.time_slot)
+  const unscheduledSections = filteredSections.filter(s => !s.day_of_week || !s.time_slot)
 
   const cellSections = (day: string, slot: string) =>
     scheduledSections.filter(s => s.day_of_week === day && s.time_slot === slot)
@@ -110,11 +122,19 @@ export default function AdminCalendar() {
             The full weekly schedule at a glance, across every instructor
           </p>
         </div>
-        <select value={termId} onChange={e => setTermId(e.target.value)} style={inputStyle}>
-          {terms.map(t => (
-            <option key={t.id} value={t.id}>{t.name}{t.is_active ? ' (active)' : ''}</option>
-          ))}
-        </select>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <select value={department} onChange={e => setDepartment(e.target.value)} style={inputStyle}>
+            <option value="all">All Departments</option>
+            {departments.map(d => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+          <select value={termId} onChange={e => { setTermId(e.target.value); setDepartment('all') }} style={inputStyle}>
+            {terms.map(t => (
+              <option key={t.id} value={t.id}>{t.name}{t.is_active ? ' (active)' : ''}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div style={{ display: 'flex', gap: 20, marginBottom: 16 }}>

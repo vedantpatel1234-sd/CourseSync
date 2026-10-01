@@ -9,6 +9,7 @@ interface Course {
   code: string
   name: string
   description: string
+  department: string | null
 }
 
 export default function AdminCourses() {
@@ -18,7 +19,12 @@ export default function AdminCourses() {
   const [code, setCode] = useState('')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [department, setDepartment] = useState('')
   const [errors, setErrors] = useState<{ code?: string; name?: string }>({})
+
+  const [editingDeptId, setEditingDeptId] = useState<string | null>(null)
+  const [editDept, setEditDept] = useState('')
+  const [savingDept, setSavingDept] = useState(false)
 
   const fetchCourses = async () => {
     const { data } = await supabase.from('courses').select('*').order('code')
@@ -41,7 +47,7 @@ export default function AdminCourses() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    const { error } = await supabase.from('courses').insert({ code, name, description })
+    const { error } = await supabase.from('courses').insert({ code, name, description, department: department || null })
     if (error) {
       toast.error(error.message)
       return
@@ -51,7 +57,26 @@ export default function AdminCourses() {
     setCode('')
     setName('')
     setDescription('')
+    setDepartment('')
     setErrors({})
+    fetchCourses()
+  }
+
+  const startEditDept = (course: Course) => {
+    setEditingDeptId(course.id)
+    setEditDept(course.department || '')
+  }
+
+  const saveDept = async (id: string) => {
+    setSavingDept(true)
+    const { error } = await supabase.from('courses').update({ department: editDept || null }).eq('id', id)
+    setSavingDept(false)
+    if (error) {
+      toast.error(error.message)
+      return
+    }
+    toast.success('Department updated!')
+    setEditingDeptId(null)
     fetchCourses()
   }
 
@@ -99,7 +124,7 @@ export default function AdminCourses() {
           Add New Course
         </h2>
         <form onSubmit={handleAdd}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr', gap: 12, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1.5fr 2fr', gap: 12, marginBottom: 12 }}>
             <div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Code</label>
               <input
@@ -119,6 +144,15 @@ export default function AdminCourses() {
                 style={{ ...inputStyle, borderColor: errors.name ? '#A32D2D' : '#e5e7eb' }}
               />
               {errors.name && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.name}</p>}
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Department (optional)</label>
+              <input
+                value={department}
+                onChange={e => setDepartment(e.target.value)}
+                placeholder="Computer Science"
+                style={inputStyle}
+              />
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Description (optional)</label>
@@ -147,7 +181,7 @@ export default function AdminCourses() {
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
-              {['Code', 'Name', 'Description', ''].map(h => (
+              {['Code', 'Name', 'Department', 'Description', ''].map(h => (
                 <th key={h} style={{
                   padding: '12px 16px', textAlign: 'left', fontSize: 12,
                   fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px'
@@ -159,7 +193,7 @@ export default function AdminCourses() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={4} style={{ padding: 24, textAlign: 'center', color: '#6B6B80' }}>Loading...</td></tr>
+              <tr><td colSpan={5} style={{ padding: 24, textAlign: 'center', color: '#6B6B80' }}>Loading...</td></tr>
             ) : courses.map(course => (
               <tr key={course.id} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
                 <td style={{ padding: '12px 16px' }}>
@@ -168,6 +202,59 @@ export default function AdminCourses() {
                   </span>
                 </td>
                 <td style={{ padding: '12px 16px', fontSize: 14, color: '#1A1A2E' }}>{course.name}</td>
+                <td style={{ padding: '12px 16px' }}>
+                  {editingDeptId === course.id ? (
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <input
+                        value={editDept}
+                        onChange={e => setEditDept(e.target.value)}
+                        placeholder="Computer Science"
+                        style={{ ...inputStyle, padding: '6px 10px', fontSize: 13, width: 160 }}
+                      />
+                      <button
+                        onClick={() => saveDept(course.id)}
+                        disabled={savingDept}
+                        style={{
+                          padding: '5px 10px', background: '#0F6E56', color: 'white',
+                          border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 500,
+                          cursor: savingDept ? 'not-allowed' : 'pointer', fontFamily: 'DM Sans, sans-serif'
+                        }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingDeptId(null)}
+                        style={{
+                          padding: '5px 10px', background: '#f3f4f6', color: '#6B6B80',
+                          border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 500,
+                          cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <span style={{
+                        fontSize: 13,
+                        color: course.department ? '#1A1A2E' : '#9ca3af',
+                        fontStyle: course.department ? 'normal' : 'italic'
+                      }}>
+                        {course.department || 'Uncategorized'}
+                      </span>
+                      <button
+                        onClick={() => startEditDept(course)}
+                        style={{
+                          padding: '3px 9px', background: '#f3f4f6', color: '#534AB7',
+                          border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 500,
+                          cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  )}
+                </td>
                 <td style={{ padding: '12px 16px', fontSize: 14, color: '#6B6B80' }}>{course.description || '—'}</td>
                 <td style={{ padding: '12px 16px' }}>
                   <button

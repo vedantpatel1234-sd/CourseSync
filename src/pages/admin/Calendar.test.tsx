@@ -42,11 +42,19 @@ const TERMS = [
 ]
 
 const SECTIONS = [
-  { id: 'sec-1', term_id: 'term-2', section_number: '01', hours_required: 3, status: 'filled', day_of_week: 'Monday', time_slot: '9:00 AM', course: { code: 'COMP2205', name: 'Data Structures' } },
-  { id: 'sec-2', term_id: 'term-2', section_number: '01', hours_required: 3, status: 'unassigned', day_of_week: 'Monday', time_slot: '9:00 AM', course: { code: 'MATH1010', name: 'Calculus' } },
-  { id: 'sec-3', term_id: 'term-2', section_number: '01', hours_required: 3, status: 'unassigned', day_of_week: null, time_slot: null, course: { code: 'PHYS1000', name: 'Physics' } },
-  { id: 'sec-4', term_id: 'term-1', section_number: '01', hours_required: 3, status: 'filled', day_of_week: 'Tuesday', time_slot: '10:00 AM', course: { code: 'ENGL1000', name: 'English' } }
+  { id: 'sec-1', term_id: 'term-2', section_number: '01', hours_required: 3, status: 'filled', day_of_week: 'Monday', time_slot: '9:00 AM', course: { code: 'COMP2205', name: 'Data Structures', department: 'Computer Science' } },
+  { id: 'sec-2', term_id: 'term-2', section_number: '01', hours_required: 3, status: 'unassigned', day_of_week: 'Monday', time_slot: '9:00 AM', course: { code: 'MATH1010', name: 'Calculus', department: 'Mathematics' } },
+  { id: 'sec-3', term_id: 'term-2', section_number: '01', hours_required: 3, status: 'unassigned', day_of_week: null, time_slot: null, course: { code: 'PHYS1000', name: 'Physics', department: null } },
+  { id: 'sec-4', term_id: 'term-1', section_number: '01', hours_required: 3, status: 'filled', day_of_week: 'Tuesday', time_slot: '10:00 AM', course: { code: 'ENGL1000', name: 'English', department: 'English' } }
 ]
+
+function termSelect() {
+  return screen.getAllByRole('combobox')[1]
+}
+
+function departmentSelect() {
+  return screen.getAllByRole('combobox')[0]
+}
 
 const ASSIGNMENTS = [
   { section_id: 'sec-1', draft_id: null, status: 'active', instructor: { full_name: 'Jane Doe' } }
@@ -66,7 +74,7 @@ describe('AdminCalendar', () => {
     renderCalendar()
 
     expect(await screen.findByText('COMP2205 §01')).toBeInTheDocument()
-    expect(screen.getByRole('combobox')).toHaveValue('term-2')
+    expect(termSelect()).toHaveValue('term-2')
   })
 
   it('shows the assigned instructor name on a filled section and "Unassigned" on an open one', async () => {
@@ -102,7 +110,7 @@ describe('AdminCalendar', () => {
     renderCalendar()
     await screen.findByText('COMP2205 §01')
 
-    await user.selectOptions(screen.getByRole('combobox'), 'term-1')
+    await user.selectOptions(termSelect(), 'term-1')
 
     expect(await screen.findByText('ENGL1000 §01')).toBeInTheDocument()
     expect(screen.queryByText('COMP2205 §01')).not.toBeInTheDocument()
@@ -114,6 +122,57 @@ describe('AdminCalendar', () => {
     renderCalendar()
 
     expect(await screen.findByText('ENGL1000 §01')).toBeInTheDocument()
-    expect(screen.getByRole('combobox')).toHaveValue('term-1')
+    expect(termSelect()).toHaveValue('term-1')
+  })
+
+  it('lists every department seen in the term, plus "Uncategorized" for courses with none', async () => {
+    mockTables({ terms: TERMS, sections: SECTIONS, assignments: ASSIGNMENTS })
+    renderCalendar()
+    await screen.findByText('COMP2205 §01')
+
+    const options = Array.from(departmentSelect().querySelectorAll('option')).map(o => o.textContent)
+    expect(options).toEqual(['All Departments', 'Computer Science', 'Mathematics', 'Uncategorized'])
+  })
+
+  it('filters the calendar down to the selected department', async () => {
+    mockTables({ terms: TERMS, sections: SECTIONS, assignments: ASSIGNMENTS })
+    const user = userEvent.setup()
+    renderCalendar()
+    await screen.findByText('COMP2205 §01')
+
+    await user.selectOptions(departmentSelect(), 'Mathematics')
+
+    expect(screen.getByText('MATH1010 §01')).toBeInTheDocument()
+    expect(screen.queryByText('COMP2205 §01')).not.toBeInTheDocument()
+    // The uncategorized Physics section belongs to no department, so it's excluded too.
+    expect(screen.queryByText('PHYS1000 §01')).not.toBeInTheDocument()
+  })
+
+  it('filtering to "Uncategorized" shows only courses with no department set', async () => {
+    mockTables({ terms: TERMS, sections: SECTIONS, assignments: ASSIGNMENTS })
+    const user = userEvent.setup()
+    renderCalendar()
+    await screen.findByText('COMP2205 §01')
+
+    await user.selectOptions(departmentSelect(), 'Uncategorized')
+
+    expect(await screen.findByText('Not on the calendar (1)')).toBeInTheDocument()
+    expect(screen.getByText('PHYS1000 §01')).toBeInTheDocument()
+    expect(screen.queryByText('COMP2205 §01')).not.toBeInTheDocument()
+  })
+
+  it('resets the department filter back to "All Departments" when the term changes', async () => {
+    mockTables({ terms: TERMS, sections: SECTIONS, assignments: ASSIGNMENTS })
+    const user = userEvent.setup()
+    renderCalendar()
+    await screen.findByText('COMP2205 §01')
+
+    await user.selectOptions(departmentSelect(), 'Mathematics')
+    expect(departmentSelect()).toHaveValue('Mathematics')
+
+    await user.selectOptions(termSelect(), 'term-1')
+    await screen.findByText('ENGL1000 §01')
+
+    expect(departmentSelect()).toHaveValue('all')
   })
 })
