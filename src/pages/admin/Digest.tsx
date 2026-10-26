@@ -25,17 +25,24 @@ export default function AdminDigest() {
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
 
-  const fetchDigests = async () => {
-    const { data } = await supabase
-      .from('digests')
-      .select('id, summary, highlights, stats, created_at')
-      .order('created_at', { ascending: false })
-      .limit(20)
-    if (data) setDigests(data as unknown as DigestRow[])
-    setLoading(false)
-  }
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchDigests = () => setReloadKey(k => k + 1)
 
-  useEffect(() => { fetchDigests() }, [])
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const { data } = await supabase
+        .from('digests')
+        .select('id, summary, highlights, stats, created_at')
+        .order('created_at', { ascending: false })
+        .limit(20)
+      if (!active) return
+      if (data) setDigests(data as unknown as DigestRow[])
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [reloadKey])
 
   const handleGenerate = async () => {
     if (!user) return

@@ -49,6 +49,8 @@ const INSTRUCTOR_FIELDS: TargetField[] = [
   { key: 'max_hours', label: 'Max Hours / Term', required: false }
 ]
 
+const EMPTY_ISSUES: Map<number, string[]> = new Map()
+
 export default function AdminImport() {
   const { user } = useAuthStore()
   const [importType, setImportType] = useState<ImportType>('courses')
@@ -63,8 +65,11 @@ export default function AdminImport() {
   const [mappingLoading, setMappingLoading] = useState(false)
   const [mappingNeedsReview, setMappingNeedsReview] = useState(false)
   const [mappingConfirmed, setMappingConfirmed] = useState(false)
-  const [rowIssues, setRowIssues] = useState<Map<number, string[]>>(new Map())
-  const [validating, setValidating] = useState(false)
+  const [validation, setValidation] = useState<{
+    rows: Record<string, string>[]
+    type: string
+    issues: Map<number, string[]>
+  } | null>(null)
 
   const targetFields = importType === 'courses' ? COURSE_FIELDS : INSTRUCTOR_FIELDS
 
@@ -75,7 +80,7 @@ export default function AdminImport() {
     setColumnMapping({})
     setMappingNeedsReview(false)
     setMappingConfirmed(false)
-    setRowIssues(new Map())
+    setValidation(null)
   }
 
   const handleFile = async (file: File) => {
@@ -142,13 +147,11 @@ export default function AdminImport() {
     })
   }, [rawRows, columnMapping, targetFields])
 
+  const validationActive = mappingConfirmed && mappedRows.length > 0
+
   useEffect(() => {
-    if (!mappingConfirmed || mappedRows.length === 0) {
-      setRowIssues(new Map())
-      return
-    }
+    if (!validationActive) return
     let cancelled = false
-    setValidating(true)
     const run = async () => {
       const issues: RowIssue[] = importType === 'courses'
         ? await validateCourseRows(mappedRows as unknown as CourseRow[])
@@ -160,13 +163,14 @@ export default function AdminImport() {
         list.push(issue.message)
         map.set(issue.rowIndex, list)
       }
-      setRowIssues(map)
-      setValidating(false)
+      setValidation({ rows: mappedRows, type: importType, issues: map })
     }
     run()
     return () => { cancelled = true }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mappingConfirmed, mappedRows, importType])
+  }, [validationActive, mappedRows, importType])
+
+  const validating = validationActive && (validation?.rows !== mappedRows || validation?.type !== importType)
+  const rowIssues = validationActive && validation ? validation.issues : EMPTY_ISSUES
 
   const requiredFieldsMapped = targetFields.filter(f => f.required).every(f => !!columnMapping[f.key])
 

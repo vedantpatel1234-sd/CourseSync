@@ -27,18 +27,25 @@ export default function AdminAudit() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('All')
 
-  const fetchLogs = async () => {
-    const { data } = await supabase
-      .from('audit_logs')
-      .select('*, profile:profiles(full_name, email)')
-      .order('created_at', { ascending: false })
-      .limit(100)
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchLogs = () => setReloadKey(k => k + 1)
 
-    if (data) setLogs(data as AuditLog[])
-    setLoading(false)
-  }
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const { data } = await supabase
+        .from('audit_logs')
+        .select('*, profile:profiles(full_name, email)')
+        .order('created_at', { ascending: false })
+        .limit(100)
 
-  useEffect(() => { fetchLogs() }, [])
+      if (!active) return
+      if (data) setLogs(data as AuditLog[])
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [reloadKey])
 
   const filtered = logs.filter(log => {
     if (filter === 'All') return true

@@ -90,84 +90,93 @@ export default function AdminDraftDetail() {
   const [resolutions, setResolutions] = useState<Record<string, 'keep_live' | 'use_draft'>>({})
   const [publishing, setPublishing] = useState(false)
 
-  const fetchAll = async () => {
-    if (!draftId) return
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchAll = () => {
     setLoading(true)
-
-    const { data: draftData } = await supabase
-      .from('drafts')
-      .select('id, name, status, is_ai_generated, term_id, published_at, term:terms(name)')
-      .eq('id', draftId)
-      .single()
-
-    if (!draftData) {
-      setNotFound(true)
-      setLoading(false)
-      return
-    }
-    setDraft(draftData as unknown as DraftInfo)
-
-    const { data: sectionsData } = await supabase
-      .from('sections')
-      .select('*, course:courses(code, name)')
-      .eq('term_id', draftData.term_id)
-      .order('created_at')
-
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('*, instructor_profiles(*)')
-      .eq('role', 'instructor')
-      .order('full_name')
-
-    const assignmentSelect = `
-      id,
-      hours_assigned,
-      instructor_id,
-      section_id,
-      ai_rationale,
-      instructor:profiles!assignments_instructor_id_fkey(id, full_name, email),
-      section:sections!assignments_section_id_fkey(id, section_number, status, hours_required, day_of_week, time_slot, course:courses(code, name), term:terms(name))
-    `
-
-    const { data: liveData } = await supabase
-      .from('assignments')
-      .select(assignmentSelect)
-      .is('draft_id', null)
-      .neq('status', 'rejected')
-
-    const { data: draftAssignmentsData } = await supabase
-      .from('assignments')
-      .select(assignmentSelect)
-      .eq('draft_id', draftId)
-
-    const { data: availabilityData } = await supabase
-      .from('instructor_availability')
-      .select('instructor_id, day, time_slot')
-
-    const liveRows = (liveData || []) as unknown as AssignmentRow[]
-    const draftRows = (draftAssignmentsData || []) as unknown as AssignmentRow[]
-    const allRows = [...liveRows, ...draftRows]
-
-    if (sectionsData) setSections(sectionsData as Section[])
-
-    if (profilesData) {
-      const withHours = profilesData.map(p => ({
-        ...p,
-        hoursAssigned: allRows
-          .filter(a => a.instructor_id === p.id)
-          .reduce((sum, a) => sum + a.hours_assigned, 0),
-        maxHours: p.instructor_profiles?.max_hours_per_term || 40
-      }))
-      setInstructors(withHours as Instructor[])
-    }
-
-    setLiveAssignments(liveRows)
-    setDraftAssignments(draftRows)
-    if (availabilityData) setAvailability(availabilityData as AvailabilityRow[])
-    setLoading(false)
+    setReloadKey(k => k + 1)
   }
 
-  useEffect(() => { fetchAll() }, [draftId])
+  useEffect(() => {
+    if (!draftId) return
+    let active = true
+    const load = async () => {
+      const { data: draftData } = await supabase
+        .from('drafts')
+        .select('id, name, status, is_ai_generated, term_id, published_at, term:terms(name)')
+        .eq('id', draftId)
+        .single()
+
+      if (!active) return
+      if (!draftData) {
+        setNotFound(true)
+        setLoading(false)
+        return
+      }
+      setDraft(draftData as unknown as DraftInfo)
+
+      const { data: sectionsData } = await supabase
+        .from('sections')
+        .select('*, course:courses(code, name)')
+        .eq('term_id', draftData.term_id)
+        .order('created_at')
+
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('*, instructor_profiles(*)')
+        .eq('role', 'instructor')
+        .order('full_name')
+
+      const assignmentSelect = `
+        id,
+        hours_assigned,
+        instructor_id,
+        section_id,
+        ai_rationale,
+        instructor:profiles!assignments_instructor_id_fkey(id, full_name, email),
+        section:sections!assignments_section_id_fkey(id, section_number, status, hours_required, day_of_week, time_slot, course:courses(code, name), term:terms(name))
+      `
+
+      const { data: liveData } = await supabase
+        .from('assignments')
+        .select(assignmentSelect)
+        .is('draft_id', null)
+        .neq('status', 'rejected')
+
+      const { data: draftAssignmentsData } = await supabase
+        .from('assignments')
+        .select(assignmentSelect)
+        .eq('draft_id', draftId)
+
+      const { data: availabilityData } = await supabase
+        .from('instructor_availability')
+        .select('instructor_id, day, time_slot')
+
+      const liveRows = (liveData || []) as unknown as AssignmentRow[]
+      const draftRows = (draftAssignmentsData || []) as unknown as AssignmentRow[]
+      const allRows = [...liveRows, ...draftRows]
+
+      if (!active) return
+      if (sectionsData) setSections(sectionsData as Section[])
+
+      if (profilesData) {
+        const withHours = profilesData.map(p => ({
+          ...p,
+          hoursAssigned: allRows
+            .filter(a => a.instructor_id === p.id)
+            .reduce((sum, a) => sum + a.hours_assigned, 0),
+          maxHours: p.instructor_profiles?.max_hours_per_term || 40
+        }))
+        setInstructors(withHours as Instructor[])
+      }
+
+      setLiveAssignments(liveRows)
+      setDraftAssignments(draftRows)
+      if (availabilityData) setAvailability(availabilityData as AvailabilityRow[])
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [reloadKey, draftId])
 
   const selectedSectionObj = useMemo(
     () => sections.find(s => s.id === selectedSection) || null,

@@ -35,23 +35,30 @@ export default function AdminDrafts() {
   const [generating, setGenerating] = useState(false)
   const [aiResult, setAiResult] = useState<{ draftId: string; draftName: string; acceptedCount: number; rejected: RejectedItem[] } | null>(null)
 
-  const fetchData = async () => {
-    const { data: draftsData } = await supabase
-      .from('drafts')
-      .select('*, term:terms(name), created_by_profile:profiles!drafts_created_by_fkey(full_name)')
-      .order('created_at', { ascending: false })
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchData = () => setReloadKey(k => k + 1)
 
-    const { data: termsData } = await supabase
-      .from('terms')
-      .select('id, name')
-      .order('name')
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const { data: draftsData } = await supabase
+        .from('drafts')
+        .select('*, term:terms(name), created_by_profile:profiles!drafts_created_by_fkey(full_name)')
+        .order('created_at', { ascending: false })
 
-    if (draftsData) setDrafts(draftsData as Draft[])
-    if (termsData) setTerms(termsData)
-    setLoading(false)
-  }
+      const { data: termsData } = await supabase
+        .from('terms')
+        .select('id, name')
+        .order('name')
 
-  useEffect(() => { fetchData() }, [])
+      if (!active) return
+      if (draftsData) setDrafts(draftsData as Draft[])
+      if (termsData) setTerms(termsData)
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [reloadKey])
 
   const validate = () => {
     const newErrors: Record<string, string> = {}

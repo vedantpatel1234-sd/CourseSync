@@ -53,43 +53,51 @@ export default function AdminInstructors() {
   const [checkedQualIds, setCheckedQualIds] = useState<Set<string>>(new Set())
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const fetchInstructors = async () => {
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('*, instructor_profiles(*)')
-      .eq('role', 'instructor')
-      .order('full_name')
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchInstructors = () => setReloadKey(k => k + 1)
 
-    if (!profiles) {
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*, instructor_profiles(*)')
+        .eq('role', 'instructor')
+        .order('full_name')
+
+      if (!active) return
+      if (!profiles) {
+        setLoading(false)
+        return
+      }
+
+      const { data: assignments } = await supabase
+        .from('assignments')
+        .select('instructor_id, hours_assigned')
+        .is('draft_id', null)
+        .neq('status', 'rejected')
+
+      const { data: qualifications } = await supabase
+        .from('qualifications')
+        .select('*, course:courses(code, name)')
+
+      const result = profiles.map(p => ({
+        ...p,
+        hoursAssigned: assignments
+          ? assignments.filter(a => a.instructor_id === p.id).reduce((sum, a) => sum + a.hours_assigned, 0)
+          : 0,
+        qualifications: qualifications
+          ? qualifications.filter(q => q.instructor_id === p.id)
+          : []
+      }))
+
+      if (!active) return
+      setInstructors(result as Instructor[])
       setLoading(false)
-      return
     }
-
-    const { data: assignments } = await supabase
-      .from('assignments')
-      .select('instructor_id, hours_assigned')
-      .is('draft_id', null)
-      .neq('status', 'rejected')
-
-    const { data: qualifications } = await supabase
-      .from('qualifications')
-      .select('*, course:courses(code, name)')
-
-    const result = profiles.map(p => ({
-      ...p,
-      hoursAssigned: assignments
-        ? assignments.filter(a => a.instructor_id === p.id).reduce((sum, a) => sum + a.hours_assigned, 0)
-        : 0,
-      qualifications: qualifications
-        ? qualifications.filter(q => q.instructor_id === p.id)
-        : []
-    }))
-
-    setInstructors(result as Instructor[])
-    setLoading(false)
-  }
-
-  useEffect(() => { fetchInstructors() }, [])
+    load()
+    return () => { active = false }
+  }, [reloadKey])
 
   const validate = () => {
     const newErrors: Record<string, string> = {}

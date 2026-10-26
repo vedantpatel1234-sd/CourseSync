@@ -8,10 +8,12 @@ interface SessionWarningModalProps {
 
 export default function SessionWarningModal({ secondsLeft, onStayLoggedIn, onLogout }: SessionWarningModalProps) {
   const [countdown, setCountdown] = useState(secondsLeft)
+  const [prevSecondsLeft, setPrevSecondsLeft] = useState(secondsLeft)
 
-  useEffect(() => {
+  if (secondsLeft !== prevSecondsLeft) {
+    setPrevSecondsLeft(secondsLeft)
     setCountdown(secondsLeft)
-  }, [secondsLeft])
+  }
 
   useEffect(() => {
     if (countdown <= 0) {

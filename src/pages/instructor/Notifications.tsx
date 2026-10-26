@@ -26,29 +26,34 @@ export default function InstructorNotifications() {
   })
   const [notifications, setNotifications] = useState<NotificationRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [now] = useState(() => Date.now())
   const [saving, setSaving] = useState(false)
 
-  const fetchAll = async () => {
+  useEffect(() => {
     if (!user) return
-    const { data: prefsData } = await supabase
-      .from('notification_preferences')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+    let active = true
+    const load = async () => {
+      const { data: prefsData } = await supabase
+        .from('notification_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
 
-    const { data: notifData } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(50)
+      const { data: notifData } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50)
 
-    if (prefsData) setPrefs(prefsData)
-    if (notifData) setNotifications(notifData as NotificationRow[])
-    setLoading(false)
-  }
-
-  useEffect(() => { fetchAll() }, [user])
+      if (!active) return
+      if (prefsData) setPrefs(prefsData)
+      if (notifData) setNotifications(notifData as NotificationRow[])
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [user])
 
   const handleSave = async () => {
     if (!user) return
@@ -87,7 +92,7 @@ export default function InstructorNotifications() {
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr)
-    const diffMs = Date.now() - d.getTime()
+    const diffMs = now - d.getTime()
     const diffMins = Math.floor(diffMs / 60000)
     if (diffMins < 1) return 'just now'
     if (diffMins < 60) return `${diffMins}m ago`

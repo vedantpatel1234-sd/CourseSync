@@ -43,25 +43,35 @@ export default function AdminSections() {
   const [editTime, setEditTime] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
 
-  const fetchSections = async () => {
-    const { data } = await supabase
-      .from('sections')
-      .select('*, course:courses(code, name), term:terms(name)')
-      .order('created_at', { ascending: false })
-    if (data) setSections(data as Section[])
-    setLoading(false)
-  }
-
-  const fetchCoursesAndTerms = async () => {
-    const { data: c } = await supabase.from('courses').select('id, code, name').order('code')
-    const { data: t } = await supabase.from('terms').select('id, name').order('name')
-    if (c) setCourses(c)
-    if (t) setTerms(t)
-  }
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchSections = () => setReloadKey(k => k + 1)
 
   useEffect(() => {
-    fetchSections()
-    fetchCoursesAndTerms()
+    let active = true
+    const loadSections = async () => {
+      const { data } = await supabase
+        .from('sections')
+        .select('*, course:courses(code, name), term:terms(name)')
+        .order('created_at', { ascending: false })
+      if (!active) return
+      if (data) setSections(data as Section[])
+      setLoading(false)
+    }
+    loadSections()
+    return () => { active = false }
+  }, [reloadKey])
+
+  useEffect(() => {
+    let active = true
+    const loadCoursesAndTerms = async () => {
+      const { data: c } = await supabase.from('courses').select('id, code, name').order('code')
+      const { data: t } = await supabase.from('terms').select('id, name').order('name')
+      if (!active) return
+      if (c) setCourses(c)
+      if (t) setTerms(t)
+    }
+    loadCoursesAndTerms()
+    return () => { active = false }
   }, [])
 
   const validate = () => {

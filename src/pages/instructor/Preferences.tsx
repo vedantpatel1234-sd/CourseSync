@@ -105,37 +105,41 @@ export default function InstructorPreferences() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  const fetchData = async () => {
+  useEffect(() => {
     if (!user) return
+    let active = true
+    const load = async () => {
 
-    const { data: sectionsData } = await supabase
-      .from('sections')
-      .select('*, course:courses(code, name), term:terms(name)')
-      .order('created_at')
+      const { data: sectionsData } = await supabase
+        .from('sections')
+        .select('*, course:courses(code, name), term:terms(name)')
+        .order('created_at')
 
-    const { data: prefsData } = await supabase
-      .from('preferences')
-      .select('*, section:sections(*, course:courses(code, name), term:terms(name))')
-      .eq('instructor_id', user.id)
-      .order('rank')
+      const { data: prefsData } = await supabase
+        .from('preferences')
+        .select('*, section:sections(*, course:courses(code, name), term:terms(name))')
+        .eq('instructor_id', user.id)
+        .order('rank')
 
-    if (prefsData && sectionsData) {
-      const rankedIds = prefsData.map(p => p.section_id)
-      const rankedSections = prefsData.map(p => ({
-        ...p.section,
-        note: p.note || ''
-      })) as RankedSection[]
+      if (!active) return
+      if (prefsData && sectionsData) {
+        const rankedIds = prefsData.map(p => p.section_id)
+        const rankedSections = prefsData.map(p => ({
+          ...p.section,
+          note: p.note || ''
+        })) as RankedSection[]
 
-      const availableSections = (sectionsData as Section[]).filter(s => !rankedIds.includes(s.id))
+        const availableSections = (sectionsData as Section[]).filter(s => !rankedIds.includes(s.id))
 
-      setRanked(rankedSections)
-      setAvailable(availableSections)
+        setRanked(rankedSections)
+        setAvailable(availableSections)
+      }
+
+      setLoading(false)
     }
-
-    setLoading(false)
-  }
-
-  useEffect(() => { fetchData() }, [user])
+    load()
+    return () => { active = false }
+  }, [user])
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event

@@ -26,13 +26,20 @@ export default function AdminCourses() {
   const [editDept, setEditDept] = useState('')
   const [savingDept, setSavingDept] = useState(false)
 
-  const fetchCourses = async () => {
-    const { data } = await supabase.from('courses').select('*').order('code')
-    if (data) setCourses(data)
-    setLoading(false)
-  }
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchCourses = () => setReloadKey(k => k + 1)
 
-  useEffect(() => { fetchCourses() }, [])
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const { data } = await supabase.from('courses').select('*').order('code')
+      if (!active) return
+      if (data) setCourses(data)
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [reloadKey])
 
   const validate = () => {
     const newErrors: { code?: string; name?: string } = {}

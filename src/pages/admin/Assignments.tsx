@@ -62,64 +62,72 @@ export default function AdminAssignments() {
   const [loading, setLoading] = useState(true)
   const [assigning, setAssigning] = useState(false)
 
-  const fetchAll = async () => {
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchAll = () => {
     setLoading(true)
-
-    const { data: sectionsData } = await supabase
-      .from('sections')
-      .select('*, course:courses(code, name), term:terms(name)')
-      .order('created_at')
-
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('*, instructor_profiles(*)')
-      .eq('role', 'instructor')
-      .order('full_name')
-
-    const { data: assignmentsData, error } = await supabase
-      .from('assignments')
-      .select(`
-        id,
-        hours_assigned,
-        instructor_id,
-        section_id,
-        instructor:profiles!assignments_instructor_id_fkey(id, full_name, email),
-        section:sections!assignments_section_id_fkey(id, section_number, status, hours_required, day_of_week, time_slot, course:courses(code, name), term:terms(name))
-      `)
-      .is('draft_id', null)
-      .neq('status', 'rejected')
-
-    if (error) console.error('assignments error:', error)
-
-    const { data: hoursData } = await supabase
-      .from('assignments')
-      .select('instructor_id, hours_assigned')
-      .is('draft_id', null)
-      .neq('status', 'rejected')
-
-    const { data: availabilityData } = await supabase
-      .from('instructor_availability')
-      .select('instructor_id, day, time_slot')
-
-    if (sectionsData) setSections(sectionsData as Section[])
-
-    if (profilesData) {
-      const withHours = profilesData.map(p => ({
-        ...p,
-        hoursAssigned: hoursData
-          ? hoursData.filter(a => a.instructor_id === p.id).reduce((sum, a) => sum + a.hours_assigned, 0)
-          : 0,
-        maxHours: p.instructor_profiles?.max_hours_per_term || 40
-      }))
-      setInstructors(withHours as Instructor[])
-    }
-
-    if (assignmentsData) setAssignments(assignmentsData as unknown as Assignment[])
-    if (availabilityData) setAvailability(availabilityData as AvailabilityRow[])
-    setLoading(false)
+    setReloadKey(k => k + 1)
   }
 
-  useEffect(() => { fetchAll() }, [])
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const { data: sectionsData } = await supabase
+        .from('sections')
+        .select('*, course:courses(code, name), term:terms(name)')
+        .order('created_at')
+
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('*, instructor_profiles(*)')
+        .eq('role', 'instructor')
+        .order('full_name')
+
+      const { data: assignmentsData, error } = await supabase
+        .from('assignments')
+        .select(`
+          id,
+          hours_assigned,
+          instructor_id,
+          section_id,
+          instructor:profiles!assignments_instructor_id_fkey(id, full_name, email),
+          section:sections!assignments_section_id_fkey(id, section_number, status, hours_required, day_of_week, time_slot, course:courses(code, name), term:terms(name))
+        `)
+        .is('draft_id', null)
+        .neq('status', 'rejected')
+
+      if (error) console.error('assignments error:', error)
+
+      const { data: hoursData } = await supabase
+        .from('assignments')
+        .select('instructor_id, hours_assigned')
+        .is('draft_id', null)
+        .neq('status', 'rejected')
+
+      const { data: availabilityData } = await supabase
+        .from('instructor_availability')
+        .select('instructor_id, day, time_slot')
+
+      if (!active) return
+      if (sectionsData) setSections(sectionsData as Section[])
+
+      if (profilesData) {
+        const withHours = profilesData.map(p => ({
+          ...p,
+          hoursAssigned: hoursData
+            ? hoursData.filter(a => a.instructor_id === p.id).reduce((sum, a) => sum + a.hours_assigned, 0)
+            : 0,
+          maxHours: p.instructor_profiles?.max_hours_per_term || 40
+        }))
+        setInstructors(withHours as Instructor[])
+      }
+
+      if (assignmentsData) setAssignments(assignmentsData as unknown as Assignment[])
+      if (availabilityData) setAvailability(availabilityData as AvailabilityRow[])
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [reloadKey])
 
   const selectedSectionObj = useMemo(
     () => sections.find(s => s.id === selectedSection) || null,

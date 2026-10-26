@@ -78,7 +78,7 @@ function App() {
 
   useEffect(() => {
     initialize()
-  }, [])
+  }, [initialize])
 
   return (
     <>

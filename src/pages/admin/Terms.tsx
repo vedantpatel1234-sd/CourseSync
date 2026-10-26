@@ -28,13 +28,20 @@ export default function AdminTerms() {
   const [editEnd, setEditEnd] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
 
-  const fetchTerms = async () => {
-    const { data } = await supabase.from('terms').select('*').order('start_date')
-    if (data) setTerms(data)
-    setLoading(false)
-  }
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchTerms = () => setReloadKey(k => k + 1)
 
-  useEffect(() => { fetchTerms() }, [])
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const { data } = await supabase.from('terms').select('*').order('start_date')
+      if (!active) return
+      if (data) setTerms(data)
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [reloadKey])
 
   const validate = () => {
     const newErrors: { name?: string; startDate?: string; endDate?: string } = {}

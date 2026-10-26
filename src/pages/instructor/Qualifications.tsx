@@ -21,24 +21,31 @@ export default function InstructorQualifications() {
   const [qualifications, setQualifications] = useState<Qualification[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fetchData = async () => {
+  const [reloadKey, setReloadKey] = useState(0)
+  const fetchData = () => setReloadKey(k => k + 1)
+
+  useEffect(() => {
     if (!user) return
-    const { data: coursesData } = await supabase
-      .from('courses')
-      .select('*')
-      .order('code')
+    let active = true
+    const load = async () => {
+      const { data: coursesData } = await supabase
+        .from('courses')
+        .select('*')
+        .order('code')
 
-    const { data: qualsData } = await supabase
-      .from('qualifications')
-      .select('*')
-      .eq('instructor_id', user.id)
+      const { data: qualsData } = await supabase
+        .from('qualifications')
+        .select('*')
+        .eq('instructor_id', user.id)
 
-    if (coursesData) setCourses(coursesData)
-    if (qualsData) setQualifications(qualsData)
-    setLoading(false)
-  }
-
-  useEffect(() => { fetchData() }, [user])
+      if (!active) return
+      if (coursesData) setCourses(coursesData)
+      if (qualsData) setQualifications(qualsData)
+      setLoading(false)
+    }
+    load()
+    return () => { active = false }
+  }, [user, reloadKey])
 
   const getQual = (courseId: string) =>
     qualifications.find(q => q.course_id === courseId)
