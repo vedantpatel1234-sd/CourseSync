@@ -11,10 +11,13 @@ interface User {
 
 interface AuthStore {
   user: User | null
+  termsAccepted: boolean | null
+  initializing: boolean
   loading: boolean
   lastActivity: number
   showWarning: boolean
   setUser: (user: User | null) => void
+  setTermsAccepted: (accepted: boolean) => void
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   initialize: () => Promise<void>
@@ -27,13 +30,27 @@ const WARNING_MS = 4 * 60 * 1000
 
 let intervalId: ReturnType<typeof setInterval> | null = null
 
+// Profile and terms-acceptance only need the user id, so fetch them together
+// rather than one after the other (and rather than again after navigation).
+async function loadUserContext(userId: string) {
+  const [profileRes, termsRes] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', userId).single(),
+    supabase.from('terms_acceptance').select('id').eq('user_id', userId).limit(1).maybeSingle()
+  ])
+  return { profile: profileRes.data as User | null, termsAccepted: !!termsRes.data }
+}
+
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
+  termsAccepted: null,
+  initializing: true,
   loading: false,
   lastActivity: Date.now(),
   showWarning: false,
 
   setUser: (user) => set({ user }),
+
+  setTermsAccepted: (accepted) => set({ termsAccepted: accepted }),
 
   resetActivity: () => {
     const { showWarning } = get()
@@ -53,13 +70,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       return { error: error.message }
     }
     if (data.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .single()
+      const { profile, termsAccepted } = await loadUserContext(data.user.id)
       if (profile) {
-        set({ user: profile, loading: false, lastActivity: Date.now(), showWarning: false })
+        set({ user: profile, termsAccepted, loading: false, lastActivity: Date.now(), showWarning: false })
         startTimer(get, set)
       }
     }
@@ -70,21 +83,21 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signOut: async () => {
     stopTimer()
     await supabase.auth.signOut()
-    set({ user: null, showWarning: false })
+    set({ user: null, termsAccepted: null, showWarning: false })
   },
 
   initialize: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session?.user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-      if (profile) {
-        set({ user: profile, lastActivity: Date.now() })
-        startTimer(get, set)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        const { profile, termsAccepted } = await loadUserContext(session.user.id)
+        if (profile) {
+          set({ user: profile, termsAccepted, lastActivity: Date.now() })
+          startTimer(get, set)
+        }
       }
+    } finally {
+      set({ initializing: false })
     }
   }
 }))
@@ -99,7 +112,7 @@ function startTimer(get: () => AuthStore, set: (partial: Partial<AuthStore>) => 
     if (elapsed >= TIMEOUT_MS) {
       toast.error('Session expired due to inactivity.', { position: 'top-center' })
       supabase.auth.signOut()
-      set({ user: null, showWarning: false })
+      set({ user: null, termsAccepted: null, showWarning: false })
       stopTimer()
     } else if (elapsed >= WARNING_MS && !showWarning) {
       set({ showWarning: true })

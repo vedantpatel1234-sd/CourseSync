@@ -1,11 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import LoginPage from './pages/LoginPage'
 import AppLayout from './components/layout/AppLayout'
 import TermsModal from './components/TermsModal'
 import SessionWarningModal from './components/SessionWarningModal'
 import { useAuthStore } from './stores/authStore'
-import { supabase } from './lib/supabase'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminCourses from './pages/admin/Courses'
 import AdminSections from './pages/admin/Sections'
@@ -35,30 +34,9 @@ import CoordinatorAnalytics from './pages/coordinator/Analytics'
 import CoordinatorHelp from './pages/coordinator/Help'
 
 function ProtectedRoute({ children, role }: { children: React.ReactNode, role: string }) {
-  const { user } = useAuthStore()
-  const [termsAccepted, setTermsAccepted] = useState<boolean | null>(null)
+  const { user, termsAccepted, initializing, setTermsAccepted } = useAuthStore()
 
-  useEffect(() => {
-    const checkTerms = async () => {
-      if (!user) return
-      const { data } = await supabase
-        .from('terms_acceptance')
-        .select('id')
-        .eq('user_id', user.id)
-        .single()
-      setTermsAccepted(!!data)
-    }
-    if (user) checkTerms()
-  }, [user])
-
-  if (!user) return <Navigate to="/login" />
-  if (user.role !== role) return <Navigate to="/login" />
-
-  if (termsAccepted === false) {
-    return <TermsModal onAccepted={() => setTermsAccepted(true)} />
-  }
-
-  if (termsAccepted === null) {
+  if (initializing) {
     return (
       <div style={{
         minHeight: '100vh', display: 'flex',
@@ -68,6 +46,13 @@ function ProtectedRoute({ children, role }: { children: React.ReactNode, role: s
         Loading...
       </div>
     )
+  }
+
+  if (!user) return <Navigate to="/login" />
+  if (user.role !== role) return <Navigate to="/login" />
+
+  if (termsAccepted === false) {
+    return <TermsModal onAccepted={() => setTermsAccepted(true)} />
   }
 
   return <>{children}</>
