@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import LoginPage from './pages/LoginPage'
+import ForgotPassword from './pages/ForgotPassword'
+import SetPassword from './pages/SetPassword'
 import AppLayout from './components/layout/AppLayout'
 import TermsModal from './components/TermsModal'
 import SessionWarningModal from './components/SessionWarningModal'
@@ -69,6 +71,8 @@ function App() {
     <>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/set-password" element={<SetPassword />} />
 
         <Route path="/admin" element={
           <ProtectedRoute role="admin">

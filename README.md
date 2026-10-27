@@ -82,7 +82,7 @@ The Anthropic key is **not** a client-side variable — see Edge Functions below
 
 ### 3. Set up the database
 Run every file in `migrations/` against your Supabase project's SQL editor, in order
-(`001_...` through `007_...`). Migration `006_row_level_security.sql` is the big one — it enables
+(`001_...` through `008_...`). Migration `006_row_level_security.sql` is the big one — it enables
 Row-Level Security on every table, so run it before relying on role-based access working correctly.
 
 ### 4. Deploy the Edge Functions
@@ -95,6 +95,19 @@ npx supabase secrets set ANTHROPIC_API_KEY=your-anthropic-key
 `manage-instructor` only needs `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
 `SUPABASE_SERVICE_ROLE_KEY` — Supabase injects these into every Edge Function automatically, so
 no extra `secrets set` is needed for it.
+
+New instructors are invited by email: `manage-instructor` calls Supabase's invite API and the
+instructor picks their own password on the `/set-password` page, so no password is ever typed or
+shown by an admin. "Forgot password?" on the sign-in page uses the same page.
+
+### 4b. Configure Auth redirects and email
+In the Supabase dashboard under **Authentication → URL Configuration**, set **Site URL** to your
+deployed app URL and add `https://<your-app>/set-password` (and `http://localhost:5173/set-password`
+for local dev) to **Redirect URLs** — invitation and reset links are rejected otherwise.
+
+Supabase's built-in email sender is for testing only (a few emails per hour, shared sender
+address). Before inviting a real department, configure custom SMTP under
+**Authentication → SMTP Settings**.
 
 ### 5. Run it
 ```bash

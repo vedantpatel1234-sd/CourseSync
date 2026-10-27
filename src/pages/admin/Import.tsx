@@ -25,14 +25,7 @@ interface InstructorRow {
 
 interface ManageInstructorResponse {
   id?: string
-  password?: string
   error?: string
-}
-
-interface ImportedCredential {
-  full_name: string
-  email: string
-  password: string
 }
 
 const COURSE_FIELDS: TargetField[] = [
@@ -59,7 +52,6 @@ export default function AdminImport() {
   const [importing, setImporting] = useState(false)
   const [dragging, setDragging] = useState(false)
   const [fileName, setFileName] = useState('')
-  const [importedCredentials, setImportedCredentials] = useState<ImportedCredential[]>([])
 
   const [columnMapping, setColumnMapping] = useState<Record<string, string | null>>({})
   const [mappingLoading, setMappingLoading] = useState(false)
@@ -181,7 +173,6 @@ export default function AdminImport() {
       return
     }
     setImporting(true)
-    setImportedCredentials([])
 
     let successCount = 0
     let errorCount = 0
@@ -199,34 +190,43 @@ export default function AdminImport() {
       await logAction(user!.id, 'imported', 'course', undefined, { count: successCount })
     }
 
+    let firstInstructorError: string | null = null
+
     if (importType === 'instructors') {
-      const newCredentials: ImportedCredential[] = []
       for (const row of validRows as unknown as InstructorRow[]) {
         const { data, error } = await supabase.functions.invoke<ManageInstructorResponse>('manage-instructor', {
           body: {
             action: 'create',
             full_name: row.full_name.trim(),
             email: row.email.trim(),
+            redirect_to: `${window.location.origin}/set-password`,
             department: row.department?.trim() || 'Unknown',
             title: row.title?.trim() || 'Instructor',
             max_hours_per_term: parseInt(row.max_hours || '40') || 40
           }
         })
-        if (error || data?.error || !data?.password) {
+        if (error || data?.error) {
           errorCount++
+          firstInstructorError ??= data?.error || error!.message
           continue
         }
-        newCredentials.push({ full_name: row.full_name.trim(), email: row.email.trim(), password: data.password })
         successCount++
       }
-      setImportedCredentials(newCredentials)
       await logAction(user!.id, 'imported', 'instructor', undefined, { count: successCount })
     }
 
     setImporting(false)
 
-    if (successCount > 0) toast.success(`${successCount} ${importType} imported successfully!`)
-    if (errorCount > 0) toast.error(`${errorCount} rows failed on import — check for duplicates created since validation ran`)
+    if (successCount > 0) {
+      toast.success(importType === 'instructors'
+        ? `${successCount} invitation${successCount === 1 ? '' : 's'} sent`
+        : `${successCount} ${importType} imported successfully!`)
+    }
+    if (errorCount > 0) {
+      toast.error(importType === 'instructors' && firstInstructorError
+        ? `${errorCount} rows failed — ${firstInstructorError}`
+        : `${errorCount} rows failed on import — check for duplicates created since validation ran`)
+    }
     const skipped = mappedRows.length - validRows.length
     if (skipped > 0) toast(`${skipped} row(s) skipped due to validation issues`, { icon: 'ℹ️' })
 
@@ -482,44 +482,6 @@ export default function AdminImport() {
         </button>
       )}
 
-      {importedCredentials.length > 0 && (
-        <div style={{
-          background: '#FAEEDA', borderRadius: 12, padding: 20,
-          marginTop: 24, border: '1px solid rgba(133,79,11,0.25)'
-        }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#854F0B', marginBottom: 4 }}>
-            Save these temporary passwords now — they won't be shown again
-          </div>
-          <div style={{ fontSize: 13, color: '#854F0B', marginBottom: 16 }}>
-            Each imported instructor got a unique temporary password. Share these with them directly; there's no email delivery yet, so this is the only place they appear.
-          </div>
-          <div style={{ background: 'white', borderRadius: 10, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
-                  {['Name', 'Email', 'Temporary Password'].map(h => (
-                    <th key={h} style={{
-                      padding: '10px 16px', textAlign: 'left', fontSize: 12,
-                      fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px'
-                    }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {importedCredentials.map(cred => (
-                  <tr key={cred.email} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
-                    <td style={{ padding: '10px 16px', fontSize: 13, color: '#1A1A2E' }}>{cred.full_name}</td>
-                    <td style={{ padding: '10px 16px', fontSize: 13, color: '#1A1A2E' }}>{cred.email}</td>
-                    <td style={{ padding: '10px 16px', fontSize: 13, color: '#1A1A2E', fontFamily: 'monospace' }}>{cred.password}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

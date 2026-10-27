@@ -137,11 +137,11 @@ describe('AdminImport', () => {
     expect(logAction).toHaveBeenCalledWith('admin-1', 'imported', 'course', undefined, { count: 1 })
   })
 
-  it('imports instructors via the manage-instructor function and displays their temporary passwords', async () => {
+  it('invites instructors via the manage-instructor function without generating or showing any password', async () => {
     vi.mocked(tryDirectMapping).mockReturnValue({ full_name: 'Name', email: 'Email', department: null, title: null, max_hours: null })
     vi.mocked(validateInstructorRows).mockResolvedValue([])
     vi.mocked(supabase.functions.invoke).mockResolvedValue({
-      data: { id: 'inst-1', password: 'Temp1234!' }, error: null
+      data: { id: 'inst-1' }, error: null
     } as never)
     const user = userEvent.setup()
     render(<AdminImport />)
@@ -152,13 +152,19 @@ describe('AdminImport', () => {
 
     await user.click(screen.getByRole('button', { name: 'Import 1 instructors' }))
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('1 instructors imported successfully!'))
-    expect(screen.getByText('Jane Doe')).toBeInTheDocument()
-    expect(screen.getByText('Temp1234!')).toBeInTheDocument()
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('1 invitation sent'))
+    expect(supabase.functions.invoke).toHaveBeenCalledWith('manage-instructor', {
+      body: {
+        action: 'create', full_name: 'Jane Doe', email: 'jane@example.com',
+        redirect_to: `${window.location.origin}/set-password`,
+        department: 'Unknown', title: 'Instructor', max_hours_per_term: 40
+      }
+    })
+    expect(screen.queryByText(/temporary password/i)).not.toBeInTheDocument()
     expect(logAction).toHaveBeenCalledWith('admin-1', 'imported', 'instructor', undefined, { count: 1 })
   })
 
-  it('counts a failed instructor invoke as an error and does not list it among credentials', async () => {
+  it('counts a failed instructor invite as an error and surfaces the reason', async () => {
     vi.mocked(tryDirectMapping).mockReturnValue({ full_name: 'Name', email: 'Email', department: null, title: null, max_hours: null })
     vi.mocked(validateInstructorRows).mockResolvedValue([])
     vi.mocked(supabase.functions.invoke).mockResolvedValue({ data: { error: 'Email already in use' }, error: null } as never)
@@ -170,8 +176,8 @@ describe('AdminImport', () => {
 
     await user.click(screen.getByRole('button', { name: 'Import 1 instructors' }))
 
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('1 rows failed on import — check for duplicates created since validation ran'))
-    expect(screen.queryByText('Jane Doe')).not.toBeInTheDocument()
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('1 rows failed — Email already in use'))
+    expect(toast.success).not.toHaveBeenCalled()
   })
 
   it('resets the file state when switching import type tabs', async () => {

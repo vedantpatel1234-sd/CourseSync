@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff } from 'lucide-react'
@@ -118,6 +118,11 @@ export default function LoginPage() {
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
+            </div>
+            <div style={{ textAlign: 'right', marginTop: 8 }}>
+              <Link to="/forgot-password" style={{ fontSize: 13, color: '#534AB7', fontWeight: 500 }}>
+                Forgot password?
+              </Link>
             </div>
           </div>
 

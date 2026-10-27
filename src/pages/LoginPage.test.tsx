@@ -48,6 +48,21 @@ describe('LoginPage', () => {
     expect(screen.getByRole('button', { name: 'coordinator' })).toBeInTheDocument()
   })
 
+  it('links to the forgot-password page', () => {
+    renderLogin()
+    expect(screen.getByRole('link', { name: 'Forgot password?' })).toHaveAttribute('href', '/forgot-password')
+  })
+
+  it('sends an already signed-in user straight to their dashboard', () => {
+    vi.mocked(useAuthStore).mockReturnValue({
+      signIn: mockSignIn, loading: false,
+      user: { id: 'u1', full_name: 'Ada', email: 'a@x.com', role: 'coordinator' }
+    } as never)
+    renderLogin()
+    expect(screen.getByTestId('location')).toHaveTextContent('/coordinator')
+    expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument()
+  })
+
   it('lets the user type an email and password', async () => {
     const user = userEvent.setup()
     renderLogin()

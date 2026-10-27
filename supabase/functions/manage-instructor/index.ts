@@ -1,5 +1,8 @@
-// Creates and deletes instructor accounts using the service role key, entirely
-// server-side. This exists because supabase-js's client-side `auth.signUp()` and
+// Invites and deletes instructor accounts using the service role key, entirely
+// server-side. New instructors are invited by email and choose their own
+// password from the link — no admin ever sees or types one.
+//
+// This exists because supabase-js's client-side `auth.signUp()` and
 // `auth.admin.*` calls operate on whatever session is currently active in the
 // browser — calling them from an already-logged-in admin's session silently
 // replaces the admin's own session with the new/deleted user's. Doing this in an
@@ -24,9 +27,16 @@ function json(body: unknown, status = 200) {
   })
 }
 
-function randomPassword() {
-  const part = crypto.randomUUID().replace(/-/g, '').slice(0, 10)
-  return `Cs${part}1!`
+// supabase-js sends the invite email with this as the landing page; Supabase
+// itself only honours URLs on the project's Redirect URL allow-list.
+function parseRedirect(value: unknown): string | undefined {
+  if (typeof value !== 'string' || !value) return undefined
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.toString() : undefined
+  } catch {
+    return undefined
+  }
 }
 
 Deno.serve(async (req) => {
@@ -66,45 +76,39 @@ Deno.serve(async (req) => {
     const body = await req.json()
 
     if (body.action === 'create') {
-      const { full_name, email, password, department, title, max_hours_per_term } = body
+      const { full_name, email, department, title, max_hours_per_term } = body
       if (!full_name || !email) return json({ error: 'full_name and email are required' }, 400)
 
-      const finalPassword: string = password || randomPassword()
-
-      const { data: created, error: createError } = await admin.auth.admin.createUser({
-        email,
-        password: finalPassword,
-        email_confirm: true
+      const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
+        redirectTo: parseRedirect(body.redirect_to)
       })
-      if (createError || !created.user) {
-        return json({ error: createError?.message || 'Failed to create account' }, 400)
+      if (inviteError || !invited.user) {
+        return json({ error: inviteError?.message || 'Failed to send invitation' }, 400)
       }
 
       const { error: profileError } = await admin.from('profiles').insert({
-        id: created.user.id,
+        id: invited.user.id,
         full_name,
         email,
         role: 'instructor'
       })
       if (profileError) {
-        await admin.auth.admin.deleteUser(created.user.id)
+        await admin.auth.admin.deleteUser(invited.user.id)
         return json({ error: profileError.message }, 400)
       }
 
       const { error: instProfileError } = await admin.from('instructor_profiles').insert({
-        user_id: created.user.id,
+        user_id: invited.user.id,
         department: department || 'Unknown',
         title: title || 'Instructor',
         max_hours_per_term: max_hours_per_term || 40
       })
       if (instProfileError) {
-        await admin.auth.admin.deleteUser(created.user.id)
+        await admin.auth.admin.deleteUser(invited.user.id)
         return json({ error: instProfileError.message }, 400)
       }
 
-      // Only echo the password back when we generated it (bulk import) — never
-      // echo back a password the admin typed themselves.
-      return json({ id: created.user.id, password: password ? undefined : finalPassword })
+      return json({ id: invited.user.id })
     }
 
     if (body.action === 'delete') {

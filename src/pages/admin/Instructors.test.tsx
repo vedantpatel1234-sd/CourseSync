@@ -83,7 +83,6 @@ function fillValidNewInstructorForm(user: ReturnType<typeof userEvent.setup>) {
   return (async () => {
     await user.type(screen.getByPlaceholderText('Dr. Jane Smith'), 'New Person')
     await user.type(screen.getByPlaceholderText('jane@university.ca'), 'new@example.com')
-    await user.type(screen.getByPlaceholderText('Min 8 chars, 1 uppercase, 1 number'), 'Password1')
     await user.type(screen.getByPlaceholderText('Computer Science'), 'Math')
     await user.type(screen.getByPlaceholderText('Associate Professor'), 'Professor')
   })()
@@ -147,26 +146,10 @@ describe('AdminInstructors', () => {
 
     expect(await screen.findByText('Name must be at least 2 characters')).toBeInTheDocument()
     expect(screen.getByText('Valid email is required')).toBeInTheDocument()
-    expect(screen.getByText(/Password must/)).toBeInTheDocument()
+    expect(screen.queryByPlaceholderText(/Min 8 chars/)).not.toBeInTheDocument()
     expect(screen.getByText('Department is required')).toBeInTheDocument()
     expect(screen.getByText('Title is required')).toBeInTheDocument()
     expect(supabase.functions.invoke).not.toHaveBeenCalled()
-  })
-
-  it('rejects a password missing an uppercase letter or a number', async () => {
-    mountSupabase()
-    const user = userEvent.setup()
-    render(<AdminInstructors />)
-    await screen.findByText('Jane Doe')
-
-    await user.type(screen.getByPlaceholderText('Dr. Jane Smith'), 'New Person')
-    await user.type(screen.getByPlaceholderText('jane@university.ca'), 'new@example.com')
-    await user.type(screen.getByPlaceholderText('Min 8 chars, 1 uppercase, 1 number'), 'lowercase')
-    await user.type(screen.getByPlaceholderText('Computer Science'), 'Math')
-    await user.type(screen.getByPlaceholderText('Associate Professor'), 'Professor')
-    await user.click(screen.getByRole('button', { name: 'Add Instructor' }))
-
-    expect(await screen.findByText(/Password must contain/)).toBeInTheDocument()
   })
 
   it('creates an instructor via the manage-instructor function and refreshes the list', async () => {
@@ -179,9 +162,13 @@ describe('AdminInstructors', () => {
     await fillValidNewInstructorForm(user)
     await user.click(screen.getByRole('button', { name: 'Add Instructor' }))
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Instructor added!'))
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Invitation sent to new@example.com'))
     expect(supabase.functions.invoke).toHaveBeenCalledWith('manage-instructor', {
-      body: { action: 'create', full_name: 'New Person', email: 'new@example.com', password: 'Password1', department: 'Math', title: 'Professor', max_hours_per_term: 40 }
+      body: {
+        action: 'create', full_name: 'New Person', email: 'new@example.com',
+        redirect_to: `${window.location.origin}/set-password`,
+        department: 'Math', title: 'Professor', max_hours_per_term: 40
+      }
     })
     expect(logAction).toHaveBeenCalledWith('admin-1', 'created', 'instructor', 'inst-2', { name: 'New Person', email: 'new@example.com' })
   })

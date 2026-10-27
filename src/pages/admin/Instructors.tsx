@@ -9,7 +9,6 @@ import { ChevronDown, ChevronUp, Upload } from 'lucide-react'
 
 interface ManageInstructorResponse {
   id?: string
-  password?: string
   success?: boolean
   error?: string
 }
@@ -40,7 +39,6 @@ export default function AdminInstructors() {
   const [loading, setLoading] = useState(true)
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [department, setDepartment] = useState('')
   const [title, setTitle] = useState('')
   const [maxHours, setMaxHours] = useState('40')
@@ -103,9 +101,6 @@ export default function AdminInstructors() {
     const newErrors: Record<string, string> = {}
     if (!fullName || fullName.length < 2) newErrors.fullName = 'Name must be at least 2 characters'
     if (!email || !/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Valid email is required'
-    if (!password || password.length < 8) newErrors.password = 'Password must be at least 8 characters'
-    if (!/[A-Z]/.test(password)) newErrors.password = 'Password must contain an uppercase letter'
-    if (!/[0-9]/.test(password)) newErrors.password = 'Password must contain a number'
     if (!department) newErrors.department = 'Department is required'
     if (!title) newErrors.title = 'Title is required'
     const hours = parseInt(maxHours)
@@ -160,7 +155,7 @@ export default function AdminInstructors() {
         action: 'create',
         full_name: fullName,
         email,
-        password,
+        redirect_to: `${window.location.origin}/set-password`,
         department,
         title,
         max_hours_per_term: parseInt(maxHours)
@@ -182,10 +177,9 @@ export default function AdminInstructors() {
       )
     }
 
-    toast.success('Instructor added!')
+    toast.success(`Invitation sent to ${email}`)
     setFullName('')
     setEmail('')
-    setPassword('')
     setDepartment('')
     setTitle('')
     setMaxHours('40')
@@ -344,12 +338,6 @@ export default function AdminInstructors() {
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@university.ca"
                 style={{ ...inputStyle, borderColor: errors.email ? '#A32D2D' : '#e5e7eb' }} />
               {errors.email && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.email}</p>}
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Password</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 chars, 1 uppercase, 1 number"
-                style={{ ...inputStyle, borderColor: errors.password ? '#A32D2D' : '#e5e7eb' }} />
-              {errors.password && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.password}</p>}
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Department</label>

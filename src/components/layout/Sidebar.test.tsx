@@ -36,6 +36,13 @@ describe('Sidebar', () => {
     vi.mocked(supabase.from).mockReset()
   })
 
+  it('links to the change-password page', () => {
+    vi.mocked(useAuthStore).mockReturnValue({ user: ADMIN_USER, signOut: vi.fn() } as never)
+    renderSidebar()
+
+    expect(screen.getByRole('link', { name: 'Change password' })).toHaveAttribute('href', '/set-password')
+  })
+
   it('renders the admin nav and user info', () => {
     vi.mocked(useAuthStore).mockReturnValue({ user: ADMIN_USER, signOut: vi.fn() } as never)
     renderSidebar()

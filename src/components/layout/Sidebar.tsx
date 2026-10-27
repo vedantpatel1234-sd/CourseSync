@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, ClipboardList, Zap, Users, CalendarDays,
   BookOpen, BarChart2, Sparkles, FlaskConical, FileInput,
-  ScrollText, HelpCircle, Star, Bell, LogOut, Newspaper, Calendar, CalendarRange,
+  ScrollText, HelpCircle, Star, Bell, LogOut, KeyRound, Newspaper, Calendar, CalendarRange,
   Menu
 } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
@@ -195,6 +195,19 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
+        <Link
+          to="/set-password"
+          className="signout-btn"
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center',
+            gap: 8, padding: '7px 10px', borderRadius: 8,
+            color: '#6B6B80', fontSize: 13, textDecoration: 'none',
+            fontFamily: 'DM Sans, sans-serif', boxSizing: 'border-box'
+          }}
+        >
+          <KeyRound size={15} />
+          Change password
+        </Link>
         <button
           onClick={() => setShowSignOutConfirm(true)}
           className="signout-btn"
