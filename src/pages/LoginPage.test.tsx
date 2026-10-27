@@ -38,14 +38,15 @@ describe('LoginPage', () => {
     vi.mocked(toast.error).mockReset()
   })
 
-  it('renders the sign-in form and demo account shortcuts', () => {
+  it('renders the sign-in form with no demo-account shortcuts', () => {
     renderLogin()
     expect(screen.getByPlaceholderText('you@example.com')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Enter your password')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'admin' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'instructor' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'coordinator' })).toBeInTheDocument()
+    expect(screen.queryByText(/demo/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'admin' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'instructor' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'coordinator' })).not.toBeInTheDocument()
   })
 
   it('links to the forgot-password page', () => {
@@ -82,21 +83,12 @@ describe('LoginPage', () => {
     const passwordInput = screen.getByPlaceholderText('Enter your password') as HTMLInputElement
     expect(passwordInput.type).toBe('password')
 
-    const toggleButtons = screen.getAllByRole('button').filter(b => b.getAttribute('type') === 'button' && !['admin', 'instructor', 'coordinator'].includes(b.textContent || ''))
-    await user.click(toggleButtons[0])
+    const toggle = screen.getAllByRole('button').find(b => b.getAttribute('type') === 'button')!
+    await user.click(toggle)
     expect(passwordInput.type).toBe('text')
 
-    await user.click(toggleButtons[0])
+    await user.click(toggle)
     expect(passwordInput.type).toBe('password')
-  })
-
-  it('fills in demo credentials when a demo account button is clicked', async () => {
-    const user = userEvent.setup()
-    renderLogin()
-    await user.click(screen.getByRole('button', { name: 'instructor' }))
-
-    expect((screen.getByPlaceholderText('you@example.com') as HTMLInputElement).value).toBe('instructor@demo.ca')
-    expect((screen.getByPlaceholderText('Enter your password') as HTMLInputElement).value).toBe('Demo@1234')
   })
 
   it.each([

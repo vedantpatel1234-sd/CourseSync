@@ -151,37 +151,6 @@ export default function LoginPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-
-        <div style={{ marginTop: 24, borderTop: '1px solid #f0f0f0', paddingTop: 20 }}>
-          <p style={{ fontSize: 12, color: '#6B6B80', textAlign: 'center', marginBottom: 10 }}>
-            Try a demo account
-          </p>
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-            {['admin', 'instructor', 'coordinator'].map((role) => (
-              <button
-                key={role}
-                onClick={() => {
-                  setEmail(`${role}@demo.ca`)
-                  setPassword('Demo@1234')
-                }}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: 20,
-                  border: '1.5px solid #EEEDFE',
-                  background: '#EEEDFE',
-                  color: '#534AB7',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  fontFamily: 'DM Sans, sans-serif',
-                  textTransform: 'capitalize'
-                }}
-              >
-                {role}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )
