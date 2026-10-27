@@ -1,7 +1,6 @@
 # Phase 2 plan: billing and legal
 
-Status: **2a and the in-product legal work are built; legal text is draft; 2b (Stripe), data export /
-deletion and the lawyer review remain.** Answers to section 6: invoice billing, incorporated business,
+Status: **2a, the in-product legal work and data export / deletion are built; legal text is draft; 2b (Stripe) and the lawyer review remain.** Answers to section 6: invoice billing, incorporated business,
 Supabase hosted in Canada, BC/Canadian colleges first.
 
 Built: migrations 012/013 (billing, AI usage, account standing); plan enforcement and server-controlled
@@ -9,7 +8,9 @@ model / output limits in `ai-proxy`; seat limit in `manage-instructor`; shared t
 (`supabase/functions/_shared/entitlements.ts`); paused screen, admin banner and Billing & usage page;
 `scripts/set-billing.mjs`; versioned terms acceptance; public `/legal/*` pages with draft documents.
 
-Not built yet: organization export and deletion tooling, the AI on/off menu hiding (the server already
+Also built: organization export (`scripts/export-org.mjs`), organization deletion (`scripts/delete-org.mjs` + migration 014, refuses without a current export), per-person erasure that also scrubs activity records and digests.
+
+Not built yet: the AI on/off menu hiding (the server already
 refuses), database-level write blocking for suspended organizations, Stripe, self-hosted fonts.
 
 > **Not legal or tax advice.** Everything under "Legal" below is engineering scaffolding plus

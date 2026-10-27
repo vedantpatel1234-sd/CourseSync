@@ -223,7 +223,7 @@ describe('AdminInstructors', () => {
     await waitFor(() => expect(screen.queryByText('Jane Doe')).not.toBeInTheDocument())
     expect(supabase.functions.invoke).toHaveBeenCalledWith('manage-instructor', { body: { action: 'delete', instructor_id: 'inst-1' } })
     expect(toast.success).toHaveBeenCalledWith('Instructor deleted!')
-    expect(logAction).toHaveBeenCalledWith('admin-1', 'deleted', 'instructor', 'inst-1', { name: 'Jane Doe' })
+    expect(logAction).toHaveBeenCalledWith('admin-1', 'deleted', 'instructor', 'inst-1') // no personal details retained
   })
 
   it('parses an uploaded resume and pre-fills empty fields, leaving already-typed ones alone', async () => {

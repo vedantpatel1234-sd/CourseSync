@@ -43,7 +43,9 @@ CourseSync stores a sign-in session in your browser so you stay signed in. It ha
 
 ## How long we keep information
 
-While the Customer's agreement is active we keep information so the service works. After it ends, we return it on request and delete it within **[30] days**, except copies in backups, which expire on the provider's normal schedule **[VERIFY]**. Activity records are kept for the life of the agreement so administrators can review them.
+While the Customer's agreement is active we keep information so the service works. After it ends, we give the Customer a complete export on request (spreadsheet-format files) and then delete everything the organization held, including every user's sign-in account, within **[30] days**, except copies in backups, which expire on the provider's normal schedule **[VERIFY]**.
+
+If a single person's account is deleted during the agreement, their records (availability, preferences, qualifications, assignments and notifications) are deleted with it, and their name and email are replaced in activity records and weekly summaries wherever we can find them. Generated text can refer to someone in ways we cannot always match (for example by first name only), and the organization's administrators can ask us to review a specific record. Activity records are otherwise kept for the life of the agreement so administrators can review them.
 
 ## Security
 

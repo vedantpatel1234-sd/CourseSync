@@ -34,7 +34,9 @@ The primary database is hosted in **Canada** **[VERIFY]**. Some subprocessors ma
 
 ## 7. Return and deletion
 
-During the agreement, Customer can ask for an export of its information. When the agreement ends Provider will, on request, return the information in a common format (such as CSV or JSON) and then delete it within **[30] days**; copies in backups are deleted on the backup provider's normal schedule **[VERIFY retention]**. Provider will confirm deletion in writing on request.
+During the agreement, Customer can ask for an export of its information. When the agreement ends Provider will, on request, return a complete export (CSV files, including a plain-language schedule) and then delete the organization's data and every user's sign-in account within **[30] days**. Provider will not delete an organization's data until the export has been produced and checked against the live records, unless Customer instructs otherwise in writing. Copies in backups are deleted on the backup provider's normal schedule **[VERIFY retention]**. Provider will confirm deletion in writing on request.
+
+On Customer's request Provider will also delete an individual's records during the agreement, replacing that person's name and email in activity records and weekly summaries as described in the Privacy Policy.
 
 ## 8. Information and audits
 

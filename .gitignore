@@ -33,3 +33,6 @@ supabase/.temp
 
 .vercel
 .env*
+
+# Data exports contain personal information
+exports/

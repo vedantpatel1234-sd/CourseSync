@@ -193,7 +193,6 @@ export default function AdminInstructors() {
   }
 
   const handleDelete = async (id: string) => {
-    const name = instructors.find(i => i.id === id)?.full_name
     const { data, error } = await supabase.functions.invoke<ManageInstructorResponse>('manage-instructor', {
       body: { action: 'delete', instructor_id: id }
     })
@@ -201,7 +200,9 @@ export default function AdminInstructors() {
       toast.error(await functionErrorMessage(error, data))
       return
     }
-    await logAction(user!.id, 'deleted', 'instructor', id, { name })
+    // No name here on purpose: erasing a person also scrubs them from activity records, so the
+    // record of the deletion must not put their name back.
+    await logAction(user!.id, 'deleted', 'instructor', id)
     toast.success('Instructor deleted!')
     fetchInstructors()
   }

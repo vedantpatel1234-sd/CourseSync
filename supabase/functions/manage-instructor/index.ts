@@ -9,7 +9,7 @@
 // Edge Function with the service role key means the admin's browser session is
 // never touched.
 //
-// Deploy with: supabase functions deploy manage-instructor
+// Requires migrations 010-014. Deploy with: supabase functions deploy manage-instructor
 // (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY are injected
 // automatically by the Supabase platform — no manual secrets to set.)
 
@@ -155,7 +155,12 @@ Deno.serve(async (req) => {
         return json({ error: 'Instructor not found' }, 404)
       }
 
-      await admin.from('profiles').delete().eq('id', instructor_id)
+      // Removes the profile and everything keyed to it, and scrubs the person's name and email
+      // from activity records and weekly digests (migration 014). Then the login account.
+      const { error: eraseError } = await admin.rpc('erase_person_data', { p_user: instructor_id })
+      if (eraseError) {
+        return json({ error: `Could not delete this instructor's data: ${eraseError.message}` }, 500)
+      }
 
       const { error: deleteError } = await admin.auth.admin.deleteUser(instructor_id)
       if (deleteError) {

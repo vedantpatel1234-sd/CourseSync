@@ -8,6 +8,10 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { PGlite } from '@electric-sql/pglite'
 import { createDatabase, applyMigration, asUser, asAnon, errorOf } from './harness'
+import {
+  orgA, orgB, adminA, coordA, instA, adminB, stranger, courseA, courseB, termA, termA2, termB,
+  secA, secA2, secB, liveA, draftAssignmentA, seed
+} from './fixtures'
 
 // The 15 tables made tenant-scoped by migrations 010/011.
 const CORE_TABLES = [
@@ -18,96 +22,6 @@ const CORE_TABLES = [
 // Added by migration 012 (they carry organization_id from the start).
 const BILLING_TABLES = ['organization_billing', 'ai_usage']
 const TENANT_TABLES = [...CORE_TABLES, ...BILLING_TABLES]
-
-const id = (n: number) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`
-
-const orgA = id(1)
-const orgB = id(2)
-const adminA = id(11)
-const coordA = id(12)
-const instA = id(13)
-const adminB = id(21)
-const instB = id(22)
-const stranger = id(99) // signed in, but has no profile
-
-const courseA = id(31)
-const courseB = id(32)
-const termA = id(41)
-const termA2 = id(43)
-const termB = id(42)
-const secA = id(51)
-const secA2 = id(53)
-const secB = id(52)
-const draftA = id(61)
-const draftB = id(62)
-const liveA = id(71)
-const liveB = id(72)
-const draftAssignmentA = id(73)
-
-async function seed(db: PGlite) {
-  await db.exec(`
-    INSERT INTO organizations (id, name, slug) VALUES
-      ('${orgA}', 'College A', 'a'), ('${orgB}', 'College B', 'b');
-
-    INSERT INTO auth.users (id, email) VALUES
-      ('${adminA}', 'admin@a.test'), ('${coordA}', 'coord@a.test'), ('${instA}', 'inst@a.test'),
-      ('${adminB}', 'admin@b.test'), ('${instB}', 'inst@b.test'), ('${stranger}', 'nobody@x.test');
-
-    INSERT INTO profiles (id, full_name, email, role, organization_id) VALUES
-      ('${adminA}', 'Admin A', 'admin@a.test', 'admin', '${orgA}'),
-      ('${coordA}', 'Coord A', 'coord@a.test', 'coordinator', '${orgA}'),
-      ('${instA}', 'Inst A', 'inst@a.test', 'instructor', '${orgA}'),
-      ('${adminB}', 'Admin B', 'admin@b.test', 'admin', '${orgB}'),
-      ('${instB}', 'Inst B', 'inst@b.test', 'instructor', '${orgB}');
-
-    INSERT INTO instructor_profiles (user_id, organization_id) VALUES
-      ('${instA}', '${orgA}'), ('${instB}', '${orgB}');
-
-    -- Both colleges use the same course code: legal once uniqueness is per organization.
-    INSERT INTO courses (id, code, name, organization_id) VALUES
-      ('${courseA}', 'CS101', 'Intro A', '${orgA}'), ('${courseB}', 'CS101', 'Intro B', '${orgB}');
-
-    INSERT INTO terms (id, name, start_date, end_date, is_active, organization_id) VALUES
-      ('${termA}', 'Fall A', '2026-09-01', '2026-12-15', true, '${orgA}'),
-      ('${termA2}', 'Winter A', '2027-01-05', '2027-04-15', false, '${orgA}'),
-      ('${termB}', 'Fall B', '2026-09-01', '2026-12-15', true, '${orgB}');
-
-    INSERT INTO sections (id, course_id, term_id, section_number, organization_id) VALUES
-      ('${secA}', '${courseA}', '${termA}', '001', '${orgA}'),
-      ('${secA2}', '${courseA}', '${termA}', '002', '${orgA}'),
-      ('${secB}', '${courseB}', '${termB}', '001', '${orgB}');
-
-    INSERT INTO drafts (id, name, term_id, created_by, organization_id) VALUES
-      ('${draftA}', 'Draft A', '${termA}', '${adminA}', '${orgA}'),
-      ('${draftB}', 'Draft B', '${termB}', '${adminB}', '${orgB}');
-
-    INSERT INTO assignments (id, instructor_id, section_id, draft_id, organization_id) VALUES
-      ('${liveA}', '${instA}', '${secA}', NULL, '${orgA}'),
-      ('${liveB}', '${instB}', '${secB}', NULL, '${orgB}'),
-      ('${draftAssignmentA}', '${instA}', '${secA2}', '${draftA}', '${orgA}');
-
-    INSERT INTO instructor_availability (instructor_id, day, time_slot, organization_id) VALUES
-      ('${instA}', 'Monday', '8:00 AM', '${orgA}'), ('${instB}', 'Monday', '8:00 AM', '${orgB}');
-    INSERT INTO preferences (instructor_id, section_id, rank, organization_id) VALUES
-      ('${instA}', '${secA}', 1, '${orgA}'), ('${instB}', '${secB}', 1, '${orgB}');
-    INSERT INTO qualifications (instructor_id, course_id, organization_id) VALUES
-      ('${instA}', '${courseA}', '${orgA}'), ('${instB}', '${courseB}', '${orgB}');
-
-    INSERT INTO notifications (user_id, type, message, organization_id) VALUES
-      ('${adminA}', 't', 'm', '${orgA}'), ('${instA}', 't', 'm', '${orgA}'),
-      ('${adminB}', 't', 'm', '${orgB}'), ('${instB}', 't', 'm', '${orgB}');
-    INSERT INTO notification_preferences (user_id, organization_id) VALUES
-      ('${adminA}', '${orgA}'), ('${instA}', '${orgA}'), ('${adminB}', '${orgB}'), ('${instB}', '${orgB}');
-    INSERT INTO digests (generated_by, summary, highlights, stats, organization_id) VALUES
-      ('${adminA}', 's', '[]', '{}', '${orgA}'), ('${adminB}', 's', '[]', '{}', '${orgB}');
-    INSERT INTO audit_logs (user_id, action, entity, organization_id) VALUES
-      ('${adminA}', 'created', 'course', '${orgA}'), ('${adminB}', 'created', 'course', '${orgB}');
-    INSERT INTO terms_acceptance (user_id, organization_id) VALUES
-      ('${adminA}', '${orgA}'), ('${instA}', '${orgA}'), ('${adminB}', '${orgB}'), ('${instB}', '${orgB}');
-    INSERT INTO ai_usage (organization_id, user_id, model, input_tokens, output_tokens) VALUES
-      ('${orgA}', '${adminA}', 'm', 10, 20), ('${orgB}', '${adminB}', 'm', 10, 20);
-  `)
-}
 
 const RLS_ERROR = /row-level security/i
 

@@ -20,6 +20,8 @@ This is a plain description of how CourseSync protects information, written so a
 
 **Limits on our own access.** Account creation and deletion run in server functions that check the caller's role and organization, and cannot be used to act on another organization.
 
+**Return and deletion of data.** A complete export of an organization's data is produced on request, and deleting an organization removes all of its records and sign-in accounts in a single all-or-nothing database operation. By default, deletion is refused unless an up-to-date export exists. Both are covered by automated tests.
+
 **Data location.** The primary database is hosted in Canada **[VERIFY]**. See [Subprocessors](/legal/subprocessors) for other providers and where they operate.
 
 **Backups and recovery.** **[VERIFY and state: backup frequency and retention on the current Supabase plan, whether point-in-time recovery is enabled, and that a restore has been tested.]**

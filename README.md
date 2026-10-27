@@ -90,6 +90,8 @@ Run the files in `migrations/` in order in your Supabase project's SQL editor:
   per-organization data isolation. See [docs/multi-tenancy-plan.md](docs/multi-tenancy-plan.md).
   Deploy the updated `manage-instructor` Edge Function immediately after `010`, because the
   previous version can't insert profiles once they require an organization.
+- `014_data_deletion.sql` — `delete_organization_data()` and `erase_person_data()`, service role
+  only. Run it before deploying the updated `manage-instructor`, which now calls `erase_person_data`.
 - `012_billing_and_ai_usage.sql` and `013_org_standing.sql` — plans, limits, AI usage metering and
   the account-standing check. See [docs/phase-2-plan.md](docs/phase-2-plan.md). **Run `012` before
   deploying the new `ai-proxy` and `manage-instructor`**: they read these tables and refuse to act
@@ -151,7 +153,22 @@ then set `LEGAL_STATUS` to `'final'` in `src/legal/index.ts`; a test refuses tha
 `[bracketed]` text remains. When the terms change in a way users must agree to again, bump
 `TERMS_VERSION` and everyone is asked to accept on their next sign-in.
 
-### 8. Run it
+### 8. Giving a school its data, and deleting it
+When a school leaves (or asks for its data), with the same `.env.provision`:
+```bash
+node --env-file=.env.provision scripts/export-org.mjs --slug fraser-valley     # writes ./exports/...
+node --env-file=.env.provision scripts/delete-org.mjs --slug fraser-valley   --confirm-slug fraser-valley --export-dir exports/fraser-valley-2027-03-01    # dry run: changes nothing
+# ...same command plus --execute to delete permanently
+```
+The export is a folder of CSV files (a readable `schedule.csv` plus the raw tables), `organization.json`
+and a `manifest.json`. It contains personal information: send it over a secure channel and delete
+your copy afterwards (`exports/` is git-ignored). Deletion refuses to run unless the slug is
+confirmed, the export is for that organization and still matches the live data, and `--execute` is
+given. It deletes in one all-or-nothing database operation, then the sign-in accounts; any account
+it cannot remove is listed so you can delete it in the Supabase dashboard. Deleting an individual
+instructor from the app also scrubs their name and email from activity records and weekly summaries.
+
+### 9. Run it
 ```bash
 npm run dev
 ```

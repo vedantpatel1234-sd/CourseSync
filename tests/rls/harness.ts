@@ -86,3 +86,13 @@ export async function errorOf(fn: () => Promise<unknown>): Promise<string | null
     return err instanceof Error ? err.message : String(err)
   }
 }
+
+/** Runs `fn` as the service role: bypasses row-level security, like the Edge Functions and vendor scripts. */
+export async function asService<T>(db: PGlite, fn: () => Promise<T>): Promise<T> {
+  await db.exec(`SET ROLE service_role;`)
+  try {
+    return await fn()
+  } finally {
+    await db.exec(`RESET ROLE;`)
+  }
+}
