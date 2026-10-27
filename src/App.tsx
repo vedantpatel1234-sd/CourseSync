@@ -25,6 +25,7 @@ import AdminImport from './pages/admin/Import'
 import AdminDigest from './pages/admin/Digest'
 import AdminHelp from './pages/admin/Help'
 import AdminBilling from './pages/admin/Billing'
+import AdminTeam from './pages/admin/Team'
 import InstructorDashboard from './pages/instructor/Dashboard'
 import InstructorQualifications from './pages/instructor/Qualifications'
 import InstructorAvailability from './pages/instructor/Availability'
@@ -72,6 +73,7 @@ function App() {
           <Route path="drafts/:draftId" element={<AdminDraftDetail />} />
           <Route path="import" element={<AdminImport />} />
           <Route path="digest" element={<AdminDigest />} />
+          <Route path="team" element={<AdminTeam />} />
           <Route path="billing" element={<AdminBilling />} />
           <Route path="help" element={<AdminHelp />} />
         </Route>

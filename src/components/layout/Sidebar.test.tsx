@@ -48,6 +48,17 @@ describe('Sidebar', () => {
     expect(screen.getByText('Assignment management')).toBeInTheDocument()
   })
 
+  it('gives administrators the Team & access page, and nobody else', () => {
+    vi.mocked(useAuthStore).mockReturnValue({ user: ADMIN_USER, signOut: vi.fn() } as never)
+    const { unmount } = renderSidebar()
+    expect(screen.getByRole('link', { name: 'Team & access' })).toHaveAttribute('href', '/admin/team')
+    unmount()
+
+    vi.mocked(useAuthStore).mockReturnValue({ user: { ...ADMIN_USER, role: 'coordinator' }, signOut: vi.fn() } as never)
+    renderSidebar('/coordinator')
+    expect(screen.queryByRole('link', { name: 'Team & access' })).not.toBeInTheDocument()
+  })
+
   it('links to the change-password page', () => {
     vi.mocked(useAuthStore).mockReturnValue({ user: ADMIN_USER, signOut: vi.fn() } as never)
     renderSidebar()

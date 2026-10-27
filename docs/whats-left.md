@@ -45,7 +45,14 @@ Do these in one sitting if you can.
     can pause after inactivity and lack proper backups; plan to use a paid tier for production.
     Verify both on the vendors' current pricing pages.
 11. **Set `VITE_SUPPORT_EMAIL`** in Vercel so "contact us" shows a real address.
-12. **GitHub:** merge or close the two Dependabot pull requests; turn on branch protection for
+12. **Raise the invitation link lifetime.** Supabase Auth, then Providers, then Email: increase the
+    email OTP expiry (the default is short, around an hour). An instructor who opens their invitation
+    the next morning otherwise gets an "expired" page; they can recover with "Forgot password?" but
+    it is a poor first impression.
+13. **Deploy the third function:** `npx supabase functions deploy manage-staff --no-verify-jwt`.
+14. **Try it:** `scripts/seed-test-school.mjs` creates a test school with one account per role and
+    writes the passwords to a git-ignored file (see the README). Delete it afterwards.
+15. **GitHub:** merge or close the two Dependabot pull requests; turn on branch protection for
     `master` (require the "Lint, type-check, test, build" check). Until you do, CI reports a
     failure but cannot stop a broken push from deploying.
 
@@ -53,7 +60,7 @@ Do these in one sitting if you can.
 
 | # | Item | Why it matters | Priority | Owner | Size |
 |---|------|----------------|----------|-------|------|
-| 1 | **No way to add admins or coordinators.** The only account `manage-instructor` creates is an instructor, and the provisioning script creates only the first admin | A school cannot add a second administrator or any coordinator. The coordinator role exists but cannot be created | **P0** | Me | M |
+| 1 | ~~No way to add admins or coordinators~~ **Done:** `manage-staff` function + "Team & access" page (invite by email, remove with confirmation, cap of 25, drafts handed over on removal) | Needs `manage-staff` deployed | ~~P0~~ | Me | done |
 | 2 | Hide AI menu items when an organization's AI is off | The server already refuses; the menu just looks broken | P1 | Me | S |
 | 3 | Database-level write block for suspended / canceled schools | Today "paused" is a screen, not a lock. A determined user could still call the API | P1 | Me | M |
 | 4 | Self-service export button for admins | Today export is a script only you can run | P1 | Me | M |
@@ -160,7 +167,7 @@ which vendor page) but I cannot replace a lawyer's judgement on the liability an
 ## 10. Suggested order
 
 1. Section 2, steps 1 to 6 (one evening). Then the throwaway-school rehearsal (step 8).
-2. Build #1 (add admins and coordinators) and #12 prep, because a school cannot onboard without #1.
+2. ~~Build #1 (add admins and coordinators)~~ done. Prepare #12 (accessibility).
 3. Staging environment + error monitoring + branch protection (finish Phase 3).
 4. Landing page + demo environment + pricing (Phase 4).
 5. Offer a free pilot to one department. Real feedback decides the rest of section 3.

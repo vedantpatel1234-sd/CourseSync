@@ -103,10 +103,11 @@ Run the files in `migrations/` in order in your Supabase project's SQL editor:
 ```bash
 npx supabase functions deploy ai-proxy --no-verify-jwt
 npx supabase functions deploy manage-instructor --no-verify-jwt
+npx supabase functions deploy manage-staff --no-verify-jwt
 npx supabase secrets set ANTHROPIC_API_KEY=your-anthropic-key
 ```
 `ai-proxy` forwards requests to Claude using this secret; the browser bundle never sees it.
-`manage-instructor` only needs `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
+`manage-instructor` and `manage-staff` (which invites and removes administrators and coordinators; instructors have their own function) only need `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and
 `SUPABASE_SERVICE_ROLE_KEY` — Supabase injects these into every Edge Function automatically, so
 no extra `secrets set` is needed for it.
 
@@ -168,7 +169,23 @@ given. It deletes in one all-or-nothing database operation, then the sign-in acc
 it cannot remove is listed so you can delete it in the Supabase dashboard. Deleting an individual
 instructor from the app also scrubs their name and email from activity records and weekly summaries.
 
-### 9. Run it
+### 9. Trying the app with a test school
+To sign in and click around without touching a real school, create a clearly-labelled test school:
+```bash
+node --env-file=.env.provision scripts/seed-test-school.mjs --confirm-project <your-project-ref>   --app-url https://your-app.example
+```
+It creates an administrator, a coordinator and two instructors with sample courses, sections and one
+assignment. **The passwords are random and are written only to `.test-credentials.local`** (git-ignored;
+never printed). `--confirm-project` must match the part of your `SUPABASE_URL` before `.supabase.co`,
+so you choose consciously which project receives test accounts; a separate test project is better.
+Remove it when you are done:
+```bash
+node --env-file=.env.provision scripts/delete-org.mjs --slug test-school --confirm-slug test-school --no-export --execute
+```
+Another way to see the real invitation flow: provision a school with your own email address
+(step 5) and accept the invitation from your inbox.
+
+### 10. Run it
 ```bash
 npm run dev
 ```
