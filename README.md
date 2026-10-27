@@ -173,6 +173,14 @@ instructor from the app also scrubs their name and email from activity records a
 npm run dev
 ```
 
+## What is left
+
+See [docs/whats-left.md](docs/whats-left.md) for the prioritised list of remaining work, including a runbook of what to do in Supabase, Vercel and GitHub.
+
+## Continuous integration
+
+Every pull request and push to `master` runs `.github/workflows/ci.yml`: lint, type-check (app, tests and shared function logic), the full test suite including the database isolation tests, a production build, and an audit of production dependencies. `npm run check` runs lint, type-check and tests locally. Dependabot opens weekly grouped update PRs.
+
 ## Testing
 
 ```bash
