@@ -188,6 +188,26 @@ describe('AdminInstructors', () => {
     expect((screen.getByPlaceholderText('Dr. Jane Smith') as HTMLInputElement).value).toBe('New Person')
   })
 
+  it('shows the plan-limit message from the server when the function answers with an error status', async () => {
+    // supabase-js reports a non-2xx response as `error` with the body on error.context.
+    const limitMessage = 'Your plan includes 25 instructor accounts and all are in use. Contact us to add more.'
+    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+      data: null,
+      error: Object.assign(new Error('Edge Function returned a non-2xx status code'), {
+        context: { json: async () => ({ error: limitMessage, code: 'seat_limit' }) }
+      })
+    } as never)
+    mountSupabase()
+    const user = userEvent.setup()
+    render(<AdminInstructors />)
+    await screen.findByText('Jane Doe')
+
+    await fillValidNewInstructorForm(user)
+    await user.click(screen.getByRole('button', { name: 'Add Instructor' }))
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith(limitMessage))
+  })
+
   it('deletes an instructor via the manage-instructor function', async () => {
     const tables = mountSupabase()
     vi.mocked(supabase.functions.invoke).mockImplementation((async (_name: string, opts: { body: { instructor_id: string } }) => {

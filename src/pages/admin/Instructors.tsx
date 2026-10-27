@@ -5,6 +5,7 @@ import { logAction } from '../../lib/audit'
 import { notifyInstructor } from '../../lib/notifications'
 import { parseResume, type QualificationSuggestion } from '../../lib/resumeParser'
 import toast from 'react-hot-toast'
+import { functionErrorMessage } from '../../lib/functionError'
 import { ChevronDown, ChevronUp, Upload } from 'lucide-react'
 
 interface ManageInstructorResponse {
@@ -163,7 +164,7 @@ export default function AdminInstructors() {
     })
 
     if (error || data?.error) {
-      toast.error(data?.error || error!.message)
+      toast.error(await functionErrorMessage(error, data))
       setAdding(false)
       return
     }
@@ -197,7 +198,7 @@ export default function AdminInstructors() {
       body: { action: 'delete', instructor_id: id }
     })
     if (error || data?.error) {
-      toast.error(data?.error || error!.message)
+      toast.error(await functionErrorMessage(error, data))
       return
     }
     await logAction(user!.id, 'deleted', 'instructor', id, { name })

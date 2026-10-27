@@ -8,7 +8,7 @@ describe('migrations', () => {
     const { rows } = await db.query<{ n: number }>(
       `SELECT count(*)::int AS n FROM pg_tables WHERE schemaname = 'public'`
     )
-    // 15 tenant tables + organizations
-    expect(rows[0].n).toBe(16)
+    // 15 core tenant tables + organizations + organization_billing + ai_usage
+    expect(rows[0].n).toBe(18)
   }, 60_000)
 })

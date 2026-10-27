@@ -14,6 +14,7 @@
 // automatically by the Supabase platform — no manual secrets to set.)
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { checkCanAddInstructor } from '../_shared/entitlements.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -83,6 +84,26 @@ Deno.serve(async (req) => {
     if (body.action === 'create') {
       const { full_name, email, department, title, max_hours_per_term } = body
       if (!full_name || !email) return json({ error: 'full_name and email are required' }, 400)
+
+      // Plan limits. Every instructor account is created here, so this is the only place seats
+      // need enforcing. Fails closed if the billing row can't be read (migration 012 required).
+      const { data: billing } = await admin
+        .from('organization_billing')
+        .select('subscription_status, trial_ends_at, max_instructors, ai_enabled, ai_monthly_token_limit')
+        .eq('organization_id', organizationId)
+        .single()
+      if (!billing) {
+        return json({ error: 'Billing is not set up for this organization. Contact us.', code: 'billing_unavailable' }, 403)
+      }
+      const { count: instructorCount, error: countError } = await admin
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('organization_id', organizationId)
+        .eq('role', 'instructor')
+      if (countError) return json({ error: 'Could not check your plan limits. Try again shortly.' }, 500)
+
+      const allowed = checkCanAddInstructor(billing, instructorCount ?? 0)
+      if (!allowed.ok) return json({ error: allowed.error, code: allowed.code }, allowed.status)
 
       const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
         redirectTo: parseRedirect(body.redirect_to)

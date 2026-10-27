@@ -5,6 +5,7 @@ import { logAction } from '../../lib/audit'
 import { suggestColumnMapping, tryDirectMapping, type TargetField } from '../../lib/csvMapper'
 import { validateCourseRows, validateInstructorRows, type RowIssue } from '../../lib/importValidation'
 import toast from 'react-hot-toast'
+import { functionErrorMessage } from '../../lib/functionError'
 import Papa from 'papaparse'
 
 type ImportType = 'courses' | 'instructors'
@@ -207,7 +208,7 @@ export default function AdminImport() {
         })
         if (error || data?.error) {
           errorCount++
-          firstInstructorError ??= data?.error || error!.message
+          firstInstructorError ??= await functionErrorMessage(error, data)
           continue
         }
         successCount++

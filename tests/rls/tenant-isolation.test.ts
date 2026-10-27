@@ -9,11 +9,15 @@ import { join } from 'node:path'
 import type { PGlite } from '@electric-sql/pglite'
 import { createDatabase, applyMigration, asUser, asAnon, errorOf } from './harness'
 
-const TENANT_TABLES = [
+// The 15 tables made tenant-scoped by migrations 010/011.
+const CORE_TABLES = [
   'profiles', 'instructor_profiles', 'courses', 'terms', 'sections', 'drafts',
   'assignments', 'instructor_availability', 'preferences', 'qualifications',
   'notifications', 'notification_preferences', 'digests', 'audit_logs', 'terms_acceptance'
 ]
+// Added by migration 012 (they carry organization_id from the start).
+const BILLING_TABLES = ['organization_billing', 'ai_usage']
+const TENANT_TABLES = [...CORE_TABLES, ...BILLING_TABLES]
 
 const id = (n: number) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`
 
@@ -100,6 +104,8 @@ async function seed(db: PGlite) {
       ('${adminA}', 'created', 'course', '${orgA}'), ('${adminB}', 'created', 'course', '${orgB}');
     INSERT INTO terms_acceptance (user_id, organization_id) VALUES
       ('${adminA}', '${orgA}'), ('${instA}', '${orgA}'), ('${adminB}', '${orgB}'), ('${instB}', '${orgB}');
+    INSERT INTO ai_usage (organization_id, user_id, model, input_tokens, output_tokens) VALUES
+      ('${orgA}', '${adminA}', 'm', 10, 20), ('${orgB}', '${adminB}', 'm', 10, 20);
   `)
 }
 
@@ -341,7 +347,7 @@ describe('upgrading an existing single-school database (migrations 010 and 011)'
     expect(orgs).toHaveLength(1)
     expect(orgs[0].name).toBe('Founding Organization')
 
-    for (const table of TENANT_TABLES) {
+    for (const table of CORE_TABLES) {
       const { rows } = await db.query<{ n: number }>(
         `SELECT count(*)::int AS n FROM ${table} WHERE organization_id IS DISTINCT FROM $1`, [orgs[0].id])
       expect(rows[0].n, `${table} fully backfilled`).toBe(0)
@@ -370,7 +376,7 @@ describe('upgrading an existing single-school database (migrations 010 and 011)'
   }, 60_000)
 
   it('can be rolled back: the rollback script removes the isolation policies', async () => {
-    const db = await createDatabase()
+    const db = await createDatabase({ through: '011' })
     await db.exec(readFileSync(join(__dirname, '..', '..', 'migrations', 'rollback', '011_down.sql'), 'utf8'))
     const { rows } = await db.query(`SELECT 1 FROM pg_policies WHERE policyname = 'tenant_isolation'`)
     expect(rows).toHaveLength(0)
