@@ -140,6 +140,42 @@ describe('billing and AI usage', () => {
     })
   })
 
+  describe('org_standing (visible to every role)', () => {
+    it('tells any member the status of their own organization only', async () => {
+      for (const user of [adminA, coordA, instA]) {
+        const rows = await rowsAs<{ subscription_status: string; ai_enabled: boolean }>(user, `SELECT * FROM org_standing()`)
+        expect(rows).toHaveLength(1)
+        expect(rows[0]).toMatchObject({ subscription_status: 'trial', ai_enabled: true })
+      }
+    })
+
+    it('reflects a change to the organization\'s status', async () => {
+      await db.query(`UPDATE organization_billing SET subscription_status = 'suspended' WHERE organization_id = $1`, [orgB])
+      const rows = await rowsAs<{ subscription_status: string }>(adminB, `SELECT * FROM org_standing()`)
+      expect(rows[0].subscription_status).toBe('suspended')
+      const other = await rowsAs<{ subscription_status: string }>(adminA, `SELECT * FROM org_standing()`)
+      expect(other[0].subscription_status).toBe('trial') // A is unaffected by B's status
+    })
+
+    it('exposes nothing beyond status, trial end and the AI switch', async () => {
+      const { fields } = await asUser(db, adminA, () => db.query(`SELECT * FROM org_standing()`))
+      expect(fields.map(f => f.name).sort()).toEqual(['ai_enabled', 'subscription_status', 'trial_ends_at'])
+    })
+
+    it('returns nothing to a signed-in user with no profile', async () => {
+      await db.exec(`INSERT INTO auth.users (id, email) VALUES ('${id(99)}', 'nobody@x.test')`)
+      expect(await rowsAs(id(99), `SELECT * FROM org_standing()`)).toHaveLength(0)
+    })
+
+    it('is not callable by an anonymous caller', async () => {
+      const err = await errorOf(async () => {
+        await db.exec('SET ROLE anon')
+        try { await db.query(`SELECT * FROM org_standing()`) } finally { await db.exec('RESET ROLE') }
+      })
+      expect(err).toMatch(/permission denied/i)
+    })
+  })
+
   it('removes billing rows and usage when an organization is deleted', async () => {
     await db.exec(`INSERT INTO organizations (id, name, slug) VALUES ('${id(4)}', 'College D', 'd')`)
     await db.exec(`INSERT INTO ai_usage (organization_id, model) VALUES ('${id(4)}', 'm')`)

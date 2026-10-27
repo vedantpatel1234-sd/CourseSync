@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, ClipboardList, Zap, Users, CalendarDays,
   BookOpen, BarChart2, Sparkles, FlaskConical, FileInput,
-  ScrollText, HelpCircle, Star, Bell, LogOut, KeyRound, Newspaper, Calendar, CalendarRange,
+  ScrollText, HelpCircle, Star, Bell, LogOut, KeyRound, CreditCard, Newspaper, Calendar, CalendarRange,
   Menu
 } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
@@ -24,6 +24,7 @@ const adminNav = [
   { label: 'Import', to: '/admin/import', icon: <FileInput size={17} /> },
   { label: 'Weekly Digest', to: '/admin/digest', icon: <Newspaper size={17} /> },
   { label: 'Audit Log', to: '/admin/audit', icon: <ScrollText size={17} /> },
+  { label: 'Billing & usage', to: '/admin/billing', icon: <CreditCard size={17} /> },
   { label: 'Help', to: '/admin/help', icon: <HelpCircle size={17} /> },
 ]
 

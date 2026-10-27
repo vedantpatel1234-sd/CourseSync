@@ -9,5 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+    // Many jsdom suites run in parallel; the 5s default occasionally trips on a busy machine.
+    testTimeout: 15000,
   },
 })

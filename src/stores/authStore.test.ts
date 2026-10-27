@@ -1,16 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { signInWithPassword, getSession, authSignOut, from } = vi.hoisted(() => ({
+const { signInWithPassword, getSession, authSignOut, from, rpc } = vi.hoisted(() => ({
   signInWithPassword: vi.fn(),
   getSession: vi.fn(),
   authSignOut: vi.fn(),
-  from: vi.fn()
+  from: vi.fn(),
+  rpc: vi.fn()
 }))
 
 vi.mock('../lib/supabase', () => ({
   supabase: {
     auth: { signInWithPassword, getSession, signOut: authSignOut },
-    from
+    from,
+    rpc
   }
 }))
 
@@ -43,8 +45,9 @@ function mockTables(opts: { profile?: unknown; terms?: unknown; org?: { name: st
 describe('authStore', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    rpc.mockResolvedValue({ data: [], error: null })
     authSignOut.mockResolvedValue({})
-    useAuthStore.setState({ user: null, termsAccepted: null, organizationName: null, initializing: true, loading: false, showWarning: false })
+    useAuthStore.setState({ user: null, termsAccepted: null, organizationName: null, standing: null, initializing: true, loading: false, showWarning: false })
   })
 
   describe('signIn', () => {
@@ -106,6 +109,29 @@ describe('authStore', () => {
       expect(useAuthStore.getState().organizationName).toBeNull()
     })
 
+    it('loads the billing standing of the organization alongside the profile', async () => {
+      signInWithPassword.mockResolvedValue({ data: { user: { id: 'u1' } }, error: null })
+      mockTables({ profile: PROFILE, terms: { id: 't1' } })
+      rpc.mockResolvedValue({ data: [{ subscription_status: 'past_due', trial_ends_at: null, ai_enabled: true }], error: null })
+
+      await useAuthStore.getState().signIn('ada@x.com', 'pw')
+
+      expect(rpc).toHaveBeenCalledWith('org_standing')
+      expect(useAuthStore.getState().standing).toEqual({ subscription_status: 'past_due', trial_ends_at: null, ai_enabled: true })
+    })
+
+    it('still signs in with standing left empty when the standing lookup fails (database not yet migrated)', async () => {
+      signInWithPassword.mockResolvedValue({ data: { user: { id: 'u1' } }, error: null })
+      mockTables({ profile: PROFILE, terms: { id: 't1' } })
+      rpc.mockResolvedValue({ data: null, error: { message: 'function org_standing() does not exist' } })
+
+      const result = await useAuthStore.getState().signIn('ada@x.com', 'pw')
+
+      expect(result).toEqual({ error: null })
+      expect(useAuthStore.getState().user).toEqual(PROFILE)
+      expect(useAuthStore.getState().standing).toBeNull()
+    })
+
     it('records termsAccepted=false when the user has not accepted', async () => {
       signInWithPassword.mockResolvedValue({ data: { user: { id: 'u1' } }, error: null })
       mockTables({ profile: PROFILE, terms: null })
@@ -161,13 +187,17 @@ describe('authStore', () => {
 
   describe('signOut', () => {
     it('clears the user, terms status and organization name', async () => {
-      useAuthStore.setState({ user: PROFILE, termsAccepted: true, organizationName: 'Fraser Valley College' })
+      useAuthStore.setState({
+        user: PROFILE, termsAccepted: true, organizationName: 'Fraser Valley College',
+        standing: { subscription_status: 'active', trial_ends_at: null, ai_enabled: true }
+      })
 
       await useAuthStore.getState().signOut()
 
       expect(useAuthStore.getState().user).toBeNull()
       expect(useAuthStore.getState().termsAccepted).toBeNull()
       expect(useAuthStore.getState().organizationName).toBeNull()
+      expect(useAuthStore.getState().standing).toBeNull()
     })
   })
 

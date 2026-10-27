@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage'
 import ForgotPassword from './pages/ForgotPassword'
 import SetPassword from './pages/SetPassword'
 import AppLayout from './components/layout/AppLayout'
-import TermsModal from './components/TermsModal'
+import ProtectedRoute from './components/ProtectedRoute'
 import SessionWarningModal from './components/SessionWarningModal'
 import { useAuthStore } from './stores/authStore'
 import AdminDashboard from './pages/admin/Dashboard'
@@ -23,6 +23,7 @@ import AdminDraftDetail from './pages/admin/DraftDetail'
 import AdminImport from './pages/admin/Import'
 import AdminDigest from './pages/admin/Digest'
 import AdminHelp from './pages/admin/Help'
+import AdminBilling from './pages/admin/Billing'
 import InstructorDashboard from './pages/instructor/Dashboard'
 import InstructorQualifications from './pages/instructor/Qualifications'
 import InstructorAvailability from './pages/instructor/Availability'
@@ -34,31 +35,6 @@ import CoordinatorAssignments from './pages/coordinator/Assignments'
 import CoordinatorInstructors from './pages/coordinator/Instructors'
 import CoordinatorAnalytics from './pages/coordinator/Analytics'
 import CoordinatorHelp from './pages/coordinator/Help'
-
-function ProtectedRoute({ children, role }: { children: React.ReactNode, role: string }) {
-  const { user, termsAccepted, initializing, setTermsAccepted } = useAuthStore()
-
-  if (initializing) {
-    return (
-      <div style={{
-        minHeight: '100vh', display: 'flex',
-        alignItems: 'center', justifyContent: 'center',
-        fontFamily: 'DM Sans, sans-serif', color: '#6B6B80'
-      }}>
-        Loading...
-      </div>
-    )
-  }
-
-  if (!user) return <Navigate to="/login" />
-  if (user.role !== role) return <Navigate to="/login" />
-
-  if (termsAccepted === false) {
-    return <TermsModal onAccepted={() => setTermsAccepted(true)} />
-  }
-
-  return <>{children}</>
-}
 
 function App() {
   const { initialize, showWarning, dismissWarning, signOut, user } = useAuthStore()
@@ -94,6 +70,7 @@ function App() {
           <Route path="drafts/:draftId" element={<AdminDraftDetail />} />
           <Route path="import" element={<AdminImport />} />
           <Route path="digest" element={<AdminDigest />} />
+          <Route path="billing" element={<AdminBilling />} />
           <Route path="help" element={<AdminHelp />} />
         </Route>
 
