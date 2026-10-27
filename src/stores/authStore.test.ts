@@ -20,10 +20,16 @@ import { useAuthStore } from './authStore'
 
 const PROFILE = { id: 'u1', full_name: 'Ada Admin', email: 'ada@x.com', role: 'admin' as const }
 
-// profiles -> .select().eq().single(); terms_acceptance -> .select().eq().limit().maybeSingle()
-function mockTables(opts: { profile?: unknown; terms?: unknown }) {
+// profiles -> .select().eq().single(); terms_acceptance -> .select().eq().limit().maybeSingle();
+// organizations -> .select().maybeSingle()
+function mockTables(opts: { profile?: unknown; terms?: unknown; org?: { name: string } | 'error' }) {
   from.mockImplementation((table: string) => {
-    const result = table === 'profiles' ? { data: opts.profile ?? null } : { data: opts.terms ?? null }
+    const orgResult = opts.org === 'error'
+      ? { data: null, error: { message: 'relation "organizations" does not exist' } }
+      : { data: opts.org ?? null }
+    const result = table === 'profiles' ? { data: opts.profile ?? null }
+      : table === 'organizations' ? orgResult
+      : { data: opts.terms ?? null }
     const chain: Record<string, unknown> = {}
     chain.select = () => chain
     chain.eq = () => chain
@@ -38,7 +44,7 @@ describe('authStore', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     authSignOut.mockResolvedValue({})
-    useAuthStore.setState({ user: null, termsAccepted: null, initializing: true, loading: false, showWarning: false })
+    useAuthStore.setState({ user: null, termsAccepted: null, organizationName: null, initializing: true, loading: false, showWarning: false })
   })
 
   describe('signIn', () => {
@@ -78,6 +84,26 @@ describe('authStore', () => {
       releaseProfile({ data: PROFILE })
       await pending
       expect(useAuthStore.getState().user).toEqual(PROFILE)
+    })
+
+    it('loads the organization name alongside the profile', async () => {
+      signInWithPassword.mockResolvedValue({ data: { user: { id: 'u1' } }, error: null })
+      mockTables({ profile: PROFILE, terms: { id: 't1' }, org: { name: 'Fraser Valley College' } })
+
+      await useAuthStore.getState().signIn('ada@x.com', 'pw')
+
+      expect(useAuthStore.getState().organizationName).toBe('Fraser Valley College')
+    })
+
+    it('still signs in when the organization lookup fails (database not yet migrated)', async () => {
+      signInWithPassword.mockResolvedValue({ data: { user: { id: 'u1' } }, error: null })
+      mockTables({ profile: PROFILE, terms: { id: 't1' }, org: 'error' })
+
+      const result = await useAuthStore.getState().signIn('ada@x.com', 'pw')
+
+      expect(result).toEqual({ error: null })
+      expect(useAuthStore.getState().user).toEqual(PROFILE)
+      expect(useAuthStore.getState().organizationName).toBeNull()
     })
 
     it('records termsAccepted=false when the user has not accepted', async () => {
@@ -134,13 +160,14 @@ describe('authStore', () => {
   })
 
   describe('signOut', () => {
-    it('clears the user and terms status', async () => {
-      useAuthStore.setState({ user: PROFILE, termsAccepted: true })
+    it('clears the user, terms status and organization name', async () => {
+      useAuthStore.setState({ user: PROFILE, termsAccepted: true, organizationName: 'Fraser Valley College' })
 
       await useAuthStore.getState().signOut()
 
       expect(useAuthStore.getState().user).toBeNull()
       expect(useAuthStore.getState().termsAccepted).toBeNull()
+      expect(useAuthStore.getState().organizationName).toBeNull()
     })
   })
 

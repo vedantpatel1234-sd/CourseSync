@@ -45,7 +45,7 @@ const coordinatorNav = [
 ]
 
 export default function Sidebar() {
-  const { user, signOut } = useAuthStore()
+  const { user, signOut, organizationName } = useAuthStore()
   const navigate = useNavigate()
   const [unreadCount, setUnreadCount] = useState(0)
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
@@ -124,7 +124,7 @@ export default function Sidebar() {
           </div>
           <div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E' }}>CourseSync</div>
-            <div style={{ fontSize: 10, color: '#6B6B80' }}>Assignment management</div>
+            <div style={{ fontSize: 10, color: '#6B6B80' }}>{organizationName || 'Assignment management'}</div>
           </div>
         </div>
       </div>

@@ -81,9 +81,17 @@ VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 The Anthropic key is **not** a client-side variable — see Edge Functions below.
 
 ### 3. Set up the database
-Run every file in `migrations/` against your Supabase project's SQL editor, in order
-(`001_...` through `008_...`). Migration `006_row_level_security.sql` is the big one — it enables
-Row-Level Security on every table, so run it before relying on role-based access working correctly.
+Run the files in `migrations/` in order in your Supabase project's SQL editor:
+
+- `000_baseline.sql` — the base tables. **Fresh projects only**; the existing production database already has them.
+- `001_...` through `009_...` — features, row-level security (`006` is the big one), and the
+  `terms_acceptance` security fix (`009`).
+- `010_multi_tenancy_schema.sql` and `011_tenant_isolation_policies.sql` — organizations and
+  per-organization data isolation. See [docs/multi-tenancy-plan.md](docs/multi-tenancy-plan.md).
+  Deploy the updated `manage-instructor` Edge Function immediately after `010`, because the
+  previous version can't insert profiles once they require an organization.
+
+`migrations/rollback/` holds scripts to undo a migration; they are never run automatically.
 
 ### 4. Deploy the Edge Functions
 ```bash
@@ -109,7 +117,16 @@ Supabase's built-in email sender is for testing only (a few emails per hour, sha
 address). Before inviting a real department, configure custom SMTP under
 **Authentication → SMTP Settings**.
 
-### 5. Run it
+### 5. Create your first organization
+Organizations (schools) are created by you, not through public signup. With the service-role key
+in a git-ignored `.env.provision` (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`):
+```bash
+node --env-file=.env.provision scripts/provision-org.mjs   --name "Fraser Valley College" --slug fraser-valley   --admin-email dean@example.com --admin-name "Dana Lee"   --redirect https://your-app.example/set-password
+```
+This creates the organization and emails its first admin an invitation. The service-role key
+bypasses all row-level security: keep it on your own machine, never in the app or in chat.
+
+### 6. Run it
 ```bash
 npm run dev
 ```
@@ -117,9 +134,14 @@ npm run dev
 ## Testing
 
 ```bash
-npm test        # run once
+npm test        # run once (includes the tenant-isolation suite below)
 npm run test:watch   # watch mode
 ```
+
+Besides the component and library tests under `src/` (which mock Supabase), `tests/rls/` runs the
+real migrations in an in-process Postgres ([PGlite](https://pglite.dev)) and checks, as actual
+database roles, that one organization can never read or change another's data. `tests/provision/`
+covers the onboarding script's rollback behaviour. Neither needs a Supabase project or Docker.
 
 ## Other scripts
 

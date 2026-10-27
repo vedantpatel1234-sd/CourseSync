@@ -11,6 +11,8 @@
 -- rejected, since a section can legitimately have any number of superseded/
 -- rejected/draft assignment rows alongside its one live one.
 
-CREATE UNIQUE INDEX IF NOT EXISTS one_live_assignment_per_section
+-- Named to match the index that already exists in the live database, so running this
+-- there is a no-op instead of creating a second, redundant index.
+CREATE UNIQUE INDEX IF NOT EXISTS one_instructor_per_section
   ON assignments (section_id)
   WHERE draft_id IS NULL AND status <> 'rejected';

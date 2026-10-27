@@ -1,13 +1,31 @@
 # Multi-tenancy plan (Phase 1)
 
-Status: **approved, not yet implemented.** Decisions made:
+Status: **migrations, tests, Edge Function and client written; nothing has been run against a real
+Supabase project yet.** Decisions made:
 
 1. One organization per user for v1 (memberships/org switcher deferred; keep everything behind
    `app_org_id()` / `app_role()` so it can be added later).
 2. Organizations are created by the vendor (sales-led), via a protected function — no public signup.
-3. A separate staging Supabase project is used for all policy work.
+3. Policy work is verified against an in-process Postgres (`tests/rls/`) first; a separate staging
+   Supabase project is still used for a rehearsal before production.
 
-Step 0 (baseline schema dump) is next; `scripts/dump-schema.sql` produces it.
+### Findings from the live schema dump
+
+- `terms_acceptance` had **row-level security disabled** (confirmed). Fixed by migration 009, which
+  is safe to run on its own, immediately.
+- The database has a `public.auto_confirm_email()` function, presumably wired to a trigger on
+  `auth.users`, that confirms every new account's email. Combined with public sign-ups and the
+  `USING (true)` read policies (`profiles`, `courses`, `terms`, `sections`, ...), a stranger could
+  create an account and read every profile. Migration 011 closes the data side (a user with no
+  profile matches nothing). **Also disable "Allow new users to sign up"** in Supabase
+  (Authentication → Providers → Email); admin-created and invited accounts are unaffected. Check
+  for the trigger with
+  `select tgname from pg_trigger where tgrelid = 'auth.users'::regclass and not tgisinternal;`
+  and drop it if present.
+- Repo/database drift: the live partial unique index is `one_instructor_per_section`, not the name
+  in migration 002 (now corrected), and migration 008 has not been applied to production.
+- The live trigger function `update_section_status()` is not SECURITY DEFINER; it keeps working
+  under tenant isolation because it only touches rows in the caller's own organization.
 
 Goal: one deployment serves many colleges. A user at College A can never read or write
 anything belonging to College B, even by calling the Supabase API directly.
@@ -115,7 +133,9 @@ course code school A already uses. Known candidates (confirm against the dumped 
   could delete another school's staff by UUID. This is the single most important code change.
 - **`ai-proxy`**: no tenant data access (it only forwards prompts). No change now. Per-org usage
   metering is a Phase 2 billing item.
-- **New `provision-organization`** (see decision 2): creates an org and invites its first admin.
+- **Provisioning** (decision 2): a local script, `scripts/provision-org.mjs`, run by the vendor
+  with the service-role key. Chosen over a deployed function so there is no network endpoint that
+  can create organizations and send invitation emails.
 
 ### 2.6 Client changes (small)
 
@@ -148,25 +168,55 @@ course code school A already uses. Known candidates (confirm against the dumped 
 
 ## 4. Steps
 
-| # | Step | Needs you? |
-|---|------|-----------|
-| 0 | Dump the live schema (tables, constraints, triggers, FKs) into the repo as `migrations/000_baseline.sql`; check `terms_acceptance` RLS; create the staging project | Yes — SQL editor / dashboard |
-| 1 | Migration 009: `organizations`, helper functions, add `organization_id` (nullable), backfill all existing rows into one org, then `NOT NULL` + default + index | Review |
-| 2 | Migration 010: restrictive `tenant_isolation` policy on all 15 tables; per-org unique constraints; RLS on `terms_acceptance`; table-coverage check | Review |
-| 3 | Edge Functions: org-aware `manage-instructor` (incl. delete ownership check); `provision-organization` | Deploy |
-| 4 | Client: org in auth store and sidebar; tests | |
-| 5 | **Isolation test suite** against staging: two orgs, users in each; for every table and every operation assert zero cross-org reads and writes | Test credentials |
-| 6 | Production rollout: backup first, run 009 then 010, verify, deploy functions | Yes |
+| # | Step | Status |
+|---|------|--------|
+| 0 | Dump the live schema; check `terms_acceptance` RLS | Done. `migrations/000_baseline.sql` reconstructs the base tables for fresh projects |
+| 1 | `010_multi_tenancy_schema.sql` | Written and tested in PGlite |
+| 2 | `011_tenant_isolation_policies.sql` (+ `rollback/011_down.sql`), `009_terms_acceptance_rls.sql` | Written and tested in PGlite |
+| 3 | `manage-instructor`: stamp the caller's organization, delete only same-organization instructors; `scripts/provision-org.mjs` | Written. The Edge Function runs on Deno and is **not** executed by any test yet |
+| 4 | Client: organization name in the sidebar | Done, tolerant of an un-migrated database |
+| 5 | Isolation test suite | Done: `tests/rls/` (see section 5) |
+| 6 | Rehearse on a staging Supabase project, then production | Not started; needs you |
 
-Rollback: 009 only adds columns and a table (safe to leave in place). 010 can be reverted by
-dropping the `tenant_isolation` policies; keep that script alongside the migration.
+### Rollout order (production)
+
+1. Back up the database (Supabase dashboard → Database → Backups).
+2. Run `009` (can be done any time, independently).
+3. Disable public sign-ups; check for and drop the `auto_confirm_email` trigger (see Findings).
+4. Run `010`, then **immediately** deploy the new `manage-instructor` (`npx supabase functions
+   deploy manage-instructor --no-verify-jwt`). Between those two steps, adding an instructor fails.
+5. Run `011`. Verify by signing in as an existing user: everything should look as before.
+6. Rename the founding organization:
+   `UPDATE organizations SET name = '...', slug = '...' WHERE slug = 'founding';`
+7. Create the next school with `scripts/provision-org.mjs`.
+
+Rollback: `010` only adds columns and a table (safe to leave in place). `011` is undone by
+`migrations/rollback/011_down.sql`; note that with several organizations present this re-opens
+cross-organization access.
 
 ## 5. Testing
 
-The current 306 vitest tests mock Supabase, so they **cannot** prove tenant isolation. Step 5 is
-the real safety net: a script that signs in as real users from two orgs on the staging project and
-tries every table with every operation (select / insert / update / delete), plus the Edge Function
-cross-org delete. Nothing in this phase counts as done until that suite passes.
+`tests/rls/` applies every migration, in order, to an in-process Postgres (PGlite) with Supabase's
+`auth.uid()` and roles stubbed, then impersonates real database roles. For all 15 tenant tables it
+checks that an admin sees only their own organization, an instructor never sees another's, a
+signed-in user with no profile sees nothing, and an anonymous caller sees nothing. It also covers
+cross-organization insert / update / delete / move attempts (each paired with a control proving the
+same operation works on the caller's own rows), the exact bulk update `Terms.tsx` runs, per-organization
+uniqueness, the section-status trigger, `terms_acceptance`, a structural guard (every public table
+must have a NOT NULL `organization_id`, RLS, and a restrictive `tenant_isolation` policy, so a future
+table can't be forgotten), upgrading a populated single-school database, and the rollback script.
+
+The suite was checked against deliberate breakages: dropping the policy from one table, or making it
+permissive instead of restrictive, fails tests. (Removing only `WITH CHECK` does not, which is
+correct: for a `FOR ALL` policy Postgres reuses `USING` as the write check.)
+
+Not covered: the Edge Functions (Deno), and real Supabase Auth / PostgREST behaviour. Those need the
+staging rehearsal.
+
+Known gap, not fixed here: foreign keys do not check that referenced rows are in the same
+organization (an admin could, given another organization's UUID, create a row of their own that
+references it). Such rows are invisible to the other organization and cannot read its data;
+composite foreign keys would close it and are a possible hardening step.
 
 ## 6. Risks
 

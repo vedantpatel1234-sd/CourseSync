@@ -36,6 +36,18 @@ describe('Sidebar', () => {
     vi.mocked(supabase.from).mockReset()
   })
 
+  it('shows the organization name under the logo, falling back to the tagline', () => {
+    vi.mocked(useAuthStore).mockReturnValue({ user: ADMIN_USER, signOut: vi.fn(), organizationName: 'Fraser Valley College' } as never)
+    const { unmount } = renderSidebar()
+    expect(screen.getByText('Fraser Valley College')).toBeInTheDocument()
+    expect(screen.queryByText('Assignment management')).not.toBeInTheDocument()
+    unmount()
+
+    vi.mocked(useAuthStore).mockReturnValue({ user: ADMIN_USER, signOut: vi.fn(), organizationName: null } as never)
+    renderSidebar()
+    expect(screen.getByText('Assignment management')).toBeInTheDocument()
+  })
+
   it('links to the change-password page', () => {
     vi.mocked(useAuthStore).mockReturnValue({ user: ADMIN_USER, signOut: vi.fn() } as never)
     renderSidebar()

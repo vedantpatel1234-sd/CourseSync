@@ -65,13 +65,18 @@ Deno.serve(async (req) => {
 
     const { data: callerProfile } = await admin
       .from('profiles')
-      .select('role')
+      .select('role, organization_id')
       .eq('id', caller.id)
       .single()
 
     if (callerProfile?.role !== 'admin') {
       return json({ error: 'Only admins can manage instructor accounts' }, 403)
     }
+
+    // This function bypasses row-level security, so it has to enforce tenant boundaries
+    // itself. The organization always comes from the caller's own profile, never from the
+    // request body.
+    const organizationId: string = callerProfile.organization_id
 
     const body = await req.json()
 
@@ -90,7 +95,8 @@ Deno.serve(async (req) => {
         id: invited.user.id,
         full_name,
         email,
-        role: 'instructor'
+        role: 'instructor',
+        organization_id: organizationId
       })
       if (profileError) {
         await admin.auth.admin.deleteUser(invited.user.id)
@@ -99,6 +105,7 @@ Deno.serve(async (req) => {
 
       const { error: instProfileError } = await admin.from('instructor_profiles').insert({
         user_id: invited.user.id,
+        organization_id: organizationId,
         department: department || 'Unknown',
         title: title || 'Instructor',
         max_hours_per_term: max_hours_per_term || 40
@@ -114,6 +121,18 @@ Deno.serve(async (req) => {
     if (body.action === 'delete') {
       const { instructor_id } = body
       if (!instructor_id) return json({ error: 'instructor_id is required' }, 400)
+
+      // Only instructors in the caller's own organization may be deleted. Without this an
+      // admin at one school could delete any account anywhere (including other admins) by id.
+      const { data: target } = await admin
+        .from('profiles')
+        .select('role, organization_id')
+        .eq('id', instructor_id)
+        .single()
+
+      if (!target || target.organization_id !== organizationId || target.role !== 'instructor') {
+        return json({ error: 'Instructor not found' }, 404)
+      }
 
       await admin.from('profiles').delete().eq('id', instructor_id)
 
