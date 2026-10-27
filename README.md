@@ -185,6 +185,15 @@ node --env-file=.env.provision scripts/delete-org.mjs --slug test-school --confi
 Another way to see the real invitation flow: provision a school with your own email address
 (step 5) and accept the invitation from your inbox.
 
+### 11. Staging, monitoring and smoke tests
+- [docs/staging.md](docs/staging.md): set up a second environment and the path a change takes to production.
+  `node scripts/build-schema.mjs` writes one SQL file that builds a **new, empty** project; a test proves it
+  matches the migrations. Previews of pull requests can use staging and show a "STAGING" strip.
+- [docs/monitoring.md](docs/monitoring.md): the app reports its own errors to your database (migration `015`);
+  `scripts/recent-errors.mjs` shows them grouped, and `--purge` keeps the 30-day retention.
+- `scripts/smoke-test.mjs` signs in as test users and checks the website, the database policies and all three
+  Edge Functions without sending anything or calling the AI. Run it after every deployment.
+
 ### 10. Run it
 ```bash
 npm run dev

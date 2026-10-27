@@ -16,6 +16,8 @@ This is a plain description of how CourseSync protects information, written so a
 
 **Activity records.** Administrator actions (creating, changing and deleting records, imports, AI-assisted changes) are recorded with who and when, and are visible to the organization's administrators.
 
+**Error monitoring.** When the app hits an error, a short report (what failed, which page, which software version) is stored in our own database so we can fix it. Email addresses and token-like text are removed first, no record contents are sent, reports are deleted after about 30 days **[VERIFY: the purge is run regularly]**, and they are not shared with any outside service.
+
 **AI safeguards.** The AI provider's access key is held on the server, never in your browser. Each organization has a monthly AI allowance, the server controls which model is used, and AI features can be switched off for an organization. Changes proposed by the scheduling assistant take effect only after an administrator confirms them.
 
 **Limits on our own access.** Account creation and deletion run in server functions that check the caller's role and organization, and cannot be used to act on another organization.

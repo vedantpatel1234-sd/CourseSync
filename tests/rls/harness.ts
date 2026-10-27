@@ -41,13 +41,24 @@ export async function applyMigration(db: PGlite, prefix: string): Promise<void> 
   }
 }
 
+/** An empty Postgres with only the Supabase stand-ins (auth schema, roles); no CourseSync tables. */
+export async function createBareDatabase(): Promise<PGlite> {
+  const db = new PGlite()
+  await db.exec(SUPABASE_STUBS)
+  return db
+}
+
+/** Gives the Supabase roles their usual table privileges. Call after the schema exists. */
+export async function grantSupabaseDefaults(db: PGlite): Promise<void> {
+  await db.exec(SUPABASE_GRANTS)
+}
+
 /**
  * A fresh in-memory Postgres. By default every migration is applied; pass `through`
  * (a numeric prefix like '009') to stop early, e.g. to seed legacy data before 010.
  */
 export async function createDatabase(opts: { through?: string } = {}): Promise<PGlite> {
-  const db = new PGlite()
-  await db.exec(SUPABASE_STUBS)
+  const db = await createBareDatabase()
   for (const file of migrationFiles()) {
     const prefix = file.split('_')[0]
     if (opts.through && prefix > opts.through) break

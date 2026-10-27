@@ -1,7 +1,9 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
+import {
+  seedTestSchool, generatePassword, TEST_SCHOOL_NAME, formatCredentialsFile, parseCredentialsFile
 // @ts-expect-error - plain ES module script, no type declarations
-import { seedTestSchool, generatePassword, TEST_SCHOOL_NAME } from '../../scripts/seedTestSchool.mjs'
+} from '../../scripts/seedTestSchool.mjs'
 import { validatePassword } from '../../src/lib/passwordRules'
 
 type Row = Record<string, unknown>
@@ -188,5 +190,39 @@ describe('seedTestSchool', () => {
       expect(calls.createdUsers).toEqual([])
       expect(calls.rpc).toEqual([]) // there is no school to clean up
     })
+  })
+})
+
+describe('credentials file', () => {
+  const credentials = [
+    { role: 'admin', email: 'admin@test-school.example', password: 'Aa1-xyz_ABC123' },
+    { role: 'coordinator', email: 'coordinator@test-school.example', password: 'Aa1-other-pass' },
+    { role: 'instructor1', email: 'instructor1@test-school.example', password: 'Aa1abc' },
+    { role: 'instructor2', email: 'instructor2@test-school.example', password: 'Aa1def' }
+  ]
+  const file = (appUrl?: string) => formatCredentialsFile({ slug: 'test-school', projectRef: 'abcd1234', appUrl, credentials })
+
+  it('can be read back exactly as written', () => {
+    expect(parseCredentialsFile(file('https://app.example'))).toEqual({
+      admin: { email: 'admin@test-school.example', password: 'Aa1-xyz_ABC123' },
+      coordinator: { email: 'coordinator@test-school.example', password: 'Aa1-other-pass' },
+      instructor1: { email: 'instructor1@test-school.example', password: 'Aa1abc' },
+      instructor2: { email: 'instructor2@test-school.example', password: 'Aa1def' }
+    })
+  })
+
+  it('tells the reader where to sign in and how to remove the school', () => {
+    expect(file('https://app.example')).toContain('Sign in at: https://app.example/login')
+    expect(file()).toContain('/login page')
+    expect(file()).toContain('delete-org.mjs --slug test-school --confirm-slug test-school --no-export --execute')
+  })
+
+  it('reads Windows line endings too', () => {
+    expect(parseCredentialsFile(file().replace(/\n/g, '\r\n')).admin.email).toBe('admin@test-school.example')
+  })
+
+  it('returns nothing for text that is not a credentials file', () => {
+    expect(parseCredentialsFile('hello\nworld')).toEqual({})
+    expect(parseCredentialsFile('')).toEqual({})
   })
 })

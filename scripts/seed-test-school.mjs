@@ -20,7 +20,7 @@
 import { parseArgs } from 'node:util'
 import { writeFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
-import { seedTestSchool, TEST_SCHOOL_NAME } from './seedTestSchool.mjs'
+import { seedTestSchool, formatCredentialsFile } from './seedTestSchool.mjs'
 
 const { values } = parseArgs({
   options: {
@@ -49,19 +49,8 @@ try {
   const supabase = createClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } })
   const { organizationId, credentials } = await seedTestSchool(supabase, { slug: values.slug })
 
-  const lines = [
-    `${TEST_SCHOOL_NAME} (slug: ${values.slug}, project: ${projectRef})`,
-    values['app-url'] ? `Sign in at: ${values['app-url']}/login` : 'Sign in at your app\'s /login page',
-    '',
-    ...credentials.flatMap(c => [`${c.role}`, `  email:    ${c.email}`, `  password: ${c.password}`]),
-    '',
-    'You will be asked to accept the terms the first time each account signs in.',
-    '',
-    'Remove this school and these accounts when you are finished:',
-    `  node --env-file=.env.provision scripts/delete-org.mjs --slug ${values.slug} --confirm-slug ${values.slug} --no-export --execute`,
-    ''
-  ]
-  writeFileSync(values.out, lines.join('\n'), 'utf8')
+  const text = formatCredentialsFile({ slug: values.slug, projectRef, appUrl: values['app-url'], credentials })
+  writeFileSync(values.out, text, 'utf8')
 
   console.log(`Created test school ${organizationId} with ${credentials.length} accounts:`)
   for (const c of credentials) console.log(`  ${c.role.padEnd(12)} ${c.email}`)

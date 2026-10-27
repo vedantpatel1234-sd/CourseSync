@@ -55,6 +55,6 @@ Liability under this addendum is subject to the limits in the main agreement. **
 | **Purpose** | Providing the CourseSync scheduling service, including its optional AI features, security and support |
 | **Duration** | The term of the agreement, plus the return/deletion period in section 7 |
 | **Individuals** | Customer's administrators, coordinators and instructors (employees, contractors and applicants whose résumés an administrator chooses to process) |
-| **Categories of information** | Name, work email, role; department, title, teaching-hour limits; availability and preferences; qualifications; assignments; résumé content processed on request; activity records; records of acceptance of terms |
+| **Categories of information** | Name, work email, role; department, title, teaching-hour limits; availability and preferences; qualifications; assignments; résumé content processed on request; activity records; records of acceptance of terms; technical error reports (error text, page and software version, with email addresses removed; kept about 30 days) |
 | **Sensitive information** | None intended. Résumés may incidentally contain personal details; Customer should upload only what it needs |
 | **Subprocessors** | As listed at /legal/subprocessors |

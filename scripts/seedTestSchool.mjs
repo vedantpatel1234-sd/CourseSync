@@ -15,6 +15,35 @@ export function generatePassword() {
   return `Aa1${randomBytes(12).toString('base64url')}`
 }
 
+/** The text written to .test-credentials.local. parseCredentialsFile reads it back. */
+export function formatCredentialsFile({ slug, projectRef, appUrl, credentials }) {
+  return [
+    `${TEST_SCHOOL_NAME} (slug: ${slug}, project: ${projectRef})`,
+    appUrl ? `Sign in at: ${appUrl}/login` : 'Sign in at the /login page of your app',
+    '',
+    ...credentials.flatMap(c => [`${c.role}`, `  email:    ${c.email}`, `  password: ${c.password}`]),
+    '',
+    'You will be asked to accept the terms the first time each account signs in.',
+    '',
+    'Remove this school and these accounts when you are finished:',
+    `  node --env-file=.env.provision scripts/delete-org.mjs --slug ${slug} --confirm-slug ${slug} --no-export --execute`,
+    ''
+  ].join('\n')
+}
+
+/** Reads a credentials file back into { admin: {email, password}, instructor1: {...}, ... }. */
+export function parseCredentialsFile(text) {
+  const result = {}
+  const lines = text.split(/\r?\n/)
+  for (let i = 0; i < lines.length; i++) {
+    const role = lines[i].match(/^(admin|coordinator|instructor\d+)$/)?.[1]
+    const email = lines[i + 1]?.match(/^\s+email:\s+(\S+)\s*$/)?.[1]
+    const password = lines[i + 2]?.match(/^\s+password:\s+(\S+)\s*$/)?.[1]
+    if (role && email && password) result[role] = { email, password }
+  }
+  return result
+}
+
 const DAY = 24 * 60 * 60 * 1000
 const isoDate = d => d.toISOString().slice(0, 10)
 

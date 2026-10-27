@@ -19,8 +19,10 @@ const CORE_TABLES = [
   'assignments', 'instructor_availability', 'preferences', 'qualifications',
   'notifications', 'notification_preferences', 'digests', 'audit_logs', 'terms_acceptance'
 ]
-// Added by migration 012 (they carry organization_id from the start).
-const BILLING_TABLES = ['organization_billing', 'ai_usage']
+// Added by migrations 012 and 015 (they carry organization_id from the start).
+const BILLING_TABLES = ['organization_billing', 'ai_usage', 'client_errors']
+// Users can write to these but never read them back, so "an admin sees their own rows" does not apply.
+const WRITE_ONLY_TABLES = ['client_errors']
 const TENANT_TABLES = [...CORE_TABLES, ...BILLING_TABLES]
 
 const RLS_ERROR = /row-level security/i
@@ -42,9 +44,9 @@ describe('tenant isolation', () => {
   describe.each(TENANT_TABLES)('%s', table => {
     it('shows an admin only their own organization', async () => {
       const a = await orgsSeenAs(adminA, table)
-      expect(a).toEqual(new Set([orgA]))
+      expect(a).toEqual(WRITE_ONLY_TABLES.includes(table) ? new Set() : new Set([orgA]))
       const b = await orgsSeenAs(adminB, table)
-      expect(b).toEqual(new Set([orgB]))
+      expect(b).toEqual(WRITE_ONLY_TABLES.includes(table) ? new Set() : new Set([orgB]))
     })
 
     it('shows an instructor nothing from another organization', async () => {

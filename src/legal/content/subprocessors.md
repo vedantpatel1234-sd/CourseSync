@@ -10,7 +10,7 @@ These are the companies that may handle Customer information on our behalf to pr
 | **Google LLC (Google Fonts)** | Delivers the typeface used by the site | IP address and browser type when a page loads | Global |
 | **[Email delivery provider]** | Sends invitation and password-reset emails | Recipient email address and the message | [LOCATION] |
 
-**Not currently used:** payment processors (invoices are issued directly), analytics, advertising, or customer-support platforms. If that changes, this page will be updated first.
+**Not currently used:** payment processors (invoices are issued directly), analytics, advertising, customer-support platforms, or an outside error-monitoring service (error reports are kept in our own database). If that changes, this page will be updated first.
 
 ## Changes
 

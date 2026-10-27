@@ -52,7 +52,10 @@ Do these in one sitting if you can.
 13. **Deploy the third function:** `npx supabase functions deploy manage-staff --no-verify-jwt`.
 14. **Try it:** `scripts/seed-test-school.mjs` creates a test school with one account per role and
     writes the passwords to a git-ignored file (see the README). Delete it afterwards.
-15. **GitHub:** merge or close the two Dependabot pull requests; turn on branch protection for
+15. **Staging and monitoring** (see [docs/staging.md](staging.md) and [docs/monitoring.md](monitoring.md)):
+    run migration `015` in production; create the staging project; set the Vercel *Preview* variables;
+    run the smoke test; add an uptime monitor; put "purge error reports" in your monthly calendar.
+16. **GitHub:** merge or close the two Dependabot pull requests; turn on branch protection for
     `master` (require the "Lint, type-check, test, build" check). Until you do, CI reports a
     failure but cannot stop a broken push from deploying.
 
@@ -83,10 +86,10 @@ Do these in one sitting if you can.
 | Dependabot weekly PRs | **Done** | Me |
 | Fixed 2 high-severity vulnerable dependencies | **Done** (0 now) | Me |
 | Branch protection so CI can block a bad push | Not done | You (2 minutes in GitHub settings) |
-| **Staging environment**: second Supabase project plus a Vercel preview pointing at it | Not started | Both. You create the project; I wire config and docs |
-| **Error monitoring** (for example Sentry) | Not started. A bug at a customer is invisible to you today | Both. You open the account |
-| Uptime monitoring and a status page | Not started | You (free tools exist) |
-| **Tests that really execute the Edge Functions** (against a local Supabase or staging) | Not started. The rules inside them are unit-tested, but the wiring is not | Me |
+| **Staging environment**: second Supabase project plus a Vercel preview pointing at it | **Built, not yet created.** One-paste database file (`build-schema`), staging banner, environment-aware previews, smoke test, and the runbook in [docs/staging.md](staging.md). You create the Supabase project and set the Vercel Preview variables | You (about an hour) |
+| **Error monitoring** | **Built** (migration `015`, error screen, `recent-errors.mjs`), kept in your own database so it adds no new provider. No alerts or source maps; see [docs/monitoring.md](monitoring.md) for limits and for how Sentry could be added later | Me, done |
+| Uptime monitoring and a status page | Described in [docs/monitoring.md](monitoring.md); needs a free account | You (10 minutes) |
+| **Tests that really execute the Edge Functions** | **Built** as `scripts/smoke-test.mjs`: calls all three deployed functions with real sessions and checks they answer correctly, with no side effects. It has not yet been run against a real project, so the first run is the real test | You run it |
 | End-to-end browser tests for the critical path (login, invite, assign) | Not started | Me |
 | Verified backup **and a tested restore** | Not started | You |
 | Incident-response runbook (who does what if there is a breach or outage) | Not started. The DPA promises 72-hour notice | Both |

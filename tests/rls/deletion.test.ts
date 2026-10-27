@@ -94,7 +94,7 @@ describe('data deletion', () => {
       const { rows } = await db.query<{ def: string }>(
         `SELECT pg_get_functiondef('delete_organization_data(uuid)'::regprocedure) AS def`)
       for (const table of await tenantTables()) {
-        if (table === 'organization_billing' || table === 'ai_usage') continue // removed by ON DELETE CASCADE
+        if (['organization_billing', 'ai_usage', 'client_errors'].includes(table)) continue // removed by ON DELETE CASCADE
         expect(rows[0].def, `${table} is deleted`).toContain(`DELETE FROM ${table} `)
       }
     })
@@ -222,8 +222,9 @@ describe('data deletion', () => {
 
   describe('export coverage', () => {
     it('exports every table that holds organization data, and nothing that does not exist', async () => {
-      // organization_billing is shared as organization.json (without Stripe ids), not as a CSV.
-      const inDatabase = (await tenantTables()).filter(t => t !== 'organization_billing').sort()
+      // organization_billing is shared as organization.json (without Stripe ids), not as a CSV;
+      // client_errors is our own technical log and holds no customer records.
+      const inDatabase = (await tenantTables()).filter(t => !['organization_billing', 'client_errors'].includes(t)).sort()
       expect([...EXPORT_TABLES].sort()).toEqual(inDatabase)
     })
 

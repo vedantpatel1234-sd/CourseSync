@@ -89,6 +89,8 @@ export async function seed(db: PGlite) {
       ('${adminA}', 'created', 'course', '${orgA}'), ('${adminB}', 'created', 'course', '${orgB}');
     INSERT INTO terms_acceptance (user_id, organization_id) VALUES
       ('${adminA}', '${orgA}'), ('${instA}', '${orgA}'), ('${adminB}', '${orgB}'), ('${instB}', '${orgB}');
+    INSERT INTO client_errors (organization_id, user_id, message) VALUES
+      ('${orgA}', '${adminA}', 'seeded error A'), ('${orgB}', '${adminB}', 'seeded error B');
     INSERT INTO ai_usage (organization_id, user_id, model, input_tokens, output_tokens) VALUES
       ('${orgA}', '${adminA}', 'm', 10, 20), ('${orgB}', '${adminB}', 'm', 10, 20);
   `)
