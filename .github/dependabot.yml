@@ -1,0 +1,19 @@
+version: 2
+
+# Weekly pull requests for dependency updates. Each one runs the full CI pipeline, so a bad
+# update shows up as a red check instead of a broken deploy.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for all minor/patch updates instead of a dozen small ones.
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

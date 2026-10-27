@@ -102,7 +102,7 @@ describe('buildScheduleRows', () => {
       sections: [...data.sections, { id: 's2', course_id: 'c2', term_id: 't1', section_number: '002', day_of_week: null, time_slot: null }],
       assignments: [...data.assignments.slice(0, 1), { id: 'a4', section_id: 's2', instructor_id: 'u1', hours_assigned: 3, status: 'active', draft_id: null }]
     }
-    expect(buildScheduleRows(more).map(r => r.course_code)).toEqual(['AA100', 'CS101'])
+    expect(buildScheduleRows(more).map((r: { course_code: string }) => r.course_code)).toEqual(['AA100', 'CS101'])
   })
 })
 

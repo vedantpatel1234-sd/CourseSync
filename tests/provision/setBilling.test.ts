@@ -29,7 +29,7 @@ describe('buildBillingPatch', () => {
     expect(() => buildBillingPatch({ 'max-instructors': bad }, NOW)).toThrow(/whole number/)
   })
 
-  it.each(STATUSES)('accepts the status %s', status => {
+  it.each(STATUSES as string[])('accepts the status %s', (status: string) => {
     expect(buildBillingPatch({ status }, NOW)).toEqual({ subscription_status: status })
   })
 
