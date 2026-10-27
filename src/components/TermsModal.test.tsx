@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import TermsModal from './TermsModal'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
+import { TERMS_VERSION } from '../legal'
 
 vi.mock('../lib/supabase', () => ({
   supabase: { from: vi.fn() }
@@ -51,8 +52,22 @@ describe('TermsModal', () => {
 
     await waitFor(() => expect(onAccepted).toHaveBeenCalledTimes(1))
     expect(supabase.from).toHaveBeenCalledWith('terms_acceptance')
-    expect(insert).toHaveBeenCalledWith(expect.objectContaining({ user_id: 'user-1', version: '1.0' }))
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({ user_id: 'user-1', version: TERMS_VERSION }))
     expect(toast.success).toHaveBeenCalled()
+  })
+
+  it('links to the real Terms of Service and Privacy Policy, opening in a new tab', () => {
+    vi.mocked(supabase.from).mockReturnValue({ insert: vi.fn() } as never)
+    render(<TermsModal onAccepted={vi.fn()} />)
+
+    const terms = screen.getByRole('link', { name: 'Terms of Service' })
+    const privacy = screen.getByRole('link', { name: 'Privacy Policy' })
+    expect(terms).toHaveAttribute('href', '/legal/terms')
+    expect(privacy).toHaveAttribute('href', '/legal/privacy')
+    for (const link of [terms, privacy]) {
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'))
+    }
   })
 
   it('shows an error toast and does not call onAccepted when the insert fails', async () => {

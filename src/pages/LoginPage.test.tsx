@@ -49,6 +49,13 @@ describe('LoginPage', () => {
     expect(screen.queryByRole('button', { name: 'coordinator' })).not.toBeInTheDocument()
   })
 
+  it('links to the public legal pages', () => {
+    renderLogin()
+    expect(screen.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/legal/terms')
+    expect(screen.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/legal/privacy')
+    expect(screen.getByRole('link', { name: 'Security' })).toHaveAttribute('href', '/legal/security')
+  })
+
   it('links to the forgot-password page', () => {
     renderLogin()
     expect(screen.getByRole('link', { name: 'Forgot password?' })).toHaveAttribute('href', '/forgot-password')

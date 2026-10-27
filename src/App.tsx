@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import LoginPage from './pages/LoginPage'
 import ForgotPassword from './pages/ForgotPassword'
 import SetPassword from './pages/SetPassword'
+import LegalPage from './pages/LegalPage'
 import AppLayout from './components/layout/AppLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import SessionWarningModal from './components/SessionWarningModal'
@@ -49,6 +50,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/set-password" element={<SetPassword />} />
+        <Route path="/legal/:doc" element={<LegalPage />} />
 
         <Route path="/admin" element={
           <ProtectedRoute role="admin">

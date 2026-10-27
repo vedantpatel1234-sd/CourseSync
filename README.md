@@ -90,6 +90,10 @@ Run the files in `migrations/` in order in your Supabase project's SQL editor:
   per-organization data isolation. See [docs/multi-tenancy-plan.md](docs/multi-tenancy-plan.md).
   Deploy the updated `manage-instructor` Edge Function immediately after `010`, because the
   previous version can't insert profiles once they require an organization.
+- `012_billing_and_ai_usage.sql` and `013_org_standing.sql` — plans, limits, AI usage metering and
+  the account-standing check. See [docs/phase-2-plan.md](docs/phase-2-plan.md). **Run `012` before
+  deploying the new `ai-proxy` and `manage-instructor`**: they read these tables and refuse to act
+  (fail closed) if they are missing.
 
 `migrations/rollback/` holds scripts to undo a migration; they are never run automatically.
 
@@ -126,7 +130,28 @@ node --env-file=.env.provision scripts/provision-org.mjs   --name "Fraser Valley
 This creates the organization and emails its first admin an invitation. The service-role key
 bypasses all row-level security: keep it on your own machine, never in the app or in chat.
 
-### 6. Run it
+### 6. Plans, limits and the signed agreement
+Every new organization starts on a 30-day trial (25 instructor accounts, 1,000,000 AI tokens per
+month). Existing organizations get an active, unlimited "internal" plan when `012` runs. You set a
+school's plan by hand with the same `.env.provision`:
+```bash
+node --env-file=.env.provision scripts/set-billing.mjs --slug fraser-valley   --plan standard --status active --max-instructors 120 --ai-limit 5000000   --msa-version 2026-11-01 --msa-signed-at 2026-11-02 --msa-signed-by "Dana Lee"
+```
+Statuses are `trial`, `active`, `past_due` (keeps working, admins see a banner), `suspended` and
+`canceled` (the app shows a paused screen; nothing is deleted). Other options: `--ai on|off`,
+`--trial-days N`, and `unlimited` for either limit. Invoices are issued outside the app. Set
+`VITE_SUPPORT_EMAIL` in Vercel so "contact us" messages show your address.
+
+### 7. Legal documents
+The Terms of Service, Privacy Policy, Subprocessors, Data Processing Addendum and Security overview
+are plain Markdown in `src/legal/content/`, served publicly at `/legal/terms`, `/legal/privacy`, etc.
+**They are drafts.** Text in `[BRACKETS]` is a placeholder or something to verify, and every page
+carries a "Draft, not yet in effect" banner. Have a lawyer review them, fill in the placeholders,
+then set `LEGAL_STATUS` to `'final'` in `src/legal/index.ts`; a test refuses that while any
+`[bracketed]` text remains. When the terms change in a way users must agree to again, bump
+`TERMS_VERSION` and everyone is asked to accept on their next sign-in.
+
+### 8. Run it
 ```bash
 npm run dev
 ```

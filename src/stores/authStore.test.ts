@@ -19,6 +19,9 @@ vi.mock('../lib/supabase', () => ({
 vi.mock('react-hot-toast', () => ({ default: { error: vi.fn(), success: vi.fn() } }))
 
 import { useAuthStore } from './authStore'
+import { TERMS_VERSION } from '../legal'
+
+const eqCalls: unknown[][] = []
 
 const PROFILE = { id: 'u1', full_name: 'Ada Admin', email: 'ada@x.com', role: 'admin' as const }
 
@@ -34,7 +37,7 @@ function mockTables(opts: { profile?: unknown; terms?: unknown; org?: { name: st
       : { data: opts.terms ?? null }
     const chain: Record<string, unknown> = {}
     chain.select = () => chain
-    chain.eq = () => chain
+    chain.eq = (column: string, value: unknown) => { eqCalls.push([table, column, value]); return chain }
     chain.limit = () => chain
     chain.single = () => Promise.resolve(result)
     chain.maybeSingle = () => Promise.resolve(result)
@@ -45,6 +48,7 @@ function mockTables(opts: { profile?: unknown; terms?: unknown; org?: { name: st
 describe('authStore', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    eqCalls.length = 0
     rpc.mockResolvedValue({ data: [], error: null })
     authSignOut.mockResolvedValue({})
     useAuthStore.setState({ user: null, termsAccepted: null, organizationName: null, standing: null, initializing: true, loading: false, showWarning: false })
@@ -87,6 +91,17 @@ describe('authStore', () => {
       releaseProfile({ data: PROFILE })
       await pending
       expect(useAuthStore.getState().user).toEqual(PROFILE)
+    })
+
+    it('asks whether the user accepted the CURRENT terms version, not just any version', async () => {
+      signInWithPassword.mockResolvedValue({ data: { user: { id: 'u1' } }, error: null })
+      mockTables({ profile: PROFILE, terms: null })
+
+      await useAuthStore.getState().signIn('ada@x.com', 'pw')
+
+      expect(eqCalls).toContainEqual(['terms_acceptance', 'user_id', 'u1'])
+      expect(eqCalls).toContainEqual(['terms_acceptance', 'version', TERMS_VERSION])
+      expect(useAuthStore.getState().termsAccepted).toBe(false)
     })
 
     it('loads the organization name alongside the profile', async () => {

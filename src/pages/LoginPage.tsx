@@ -151,6 +151,12 @@ export default function LoginPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+
+        <nav aria-label="Legal" style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 24, paddingTop: 16, borderTop: '1px solid #f0f0f0' }}>
+          <Link to="/legal/terms" style={{ fontSize: 12, color: '#6B6B80' }}>Terms</Link>
+          <Link to="/legal/privacy" style={{ fontSize: 12, color: '#6B6B80' }}>Privacy</Link>
+          <Link to="/legal/security" style={{ fontSize: 12, color: '#6B6B80' }}>Security</Link>
+        </nav>
       </div>
     </div>
   )

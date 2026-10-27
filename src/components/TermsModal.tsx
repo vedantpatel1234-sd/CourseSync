@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 import toast from 'react-hot-toast'
+import { TERMS_VERSION } from '../legal'
 
 interface TermsModalProps {
   onAccepted: () => void
@@ -18,7 +19,7 @@ export default function TermsModal({ onAccepted }: TermsModalProps) {
     const { error } = await supabase.from('terms_acceptance').insert({
       user_id: user.id,
       accepted_at: new Date().toISOString(),
-      version: '1.0'
+      version: TERMS_VERSION
     })
     if (error) {
       toast.error('Failed to save acceptance. Please try again.')
@@ -72,7 +73,10 @@ export default function TermsModal({ onAccepted }: TermsModalProps) {
             style={{ marginTop: 2, accentColor: '#534AB7', width: 16, height: 16 }}
           />
           <span style={{ fontSize: 14, color: '#1A1A2E', lineHeight: 1.5 }}>
-            I agree to the Terms of Service and Privacy Policy
+            I agree to the{' '}
+            <a href="/legal/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#534AB7' }}>Terms of Service</a>
+            {' '}and{' '}
+            <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#534AB7' }}>Privacy Policy</a>
           </span>
         </label>
         <button

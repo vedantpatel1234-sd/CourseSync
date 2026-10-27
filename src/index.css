@@ -146,3 +146,15 @@ table tbody tr {
     grid-template-columns: 1fr !important;
   }
 }
+/* Typography for the public legal pages (the global reset removes default margins). */
+.legal-doc { color: #1A1A2E; font-size: 14px; line-height: 1.7; }
+.legal-doc h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.legal-doc h2 { font-size: 17px; font-weight: 600; margin: 28px 0 8px; }
+.legal-doc p { margin: 0 0 12px; }
+.legal-doc ul, .legal-doc ol { margin: 0 0 12px; padding-left: 22px; }
+.legal-doc li { margin-bottom: 6px; }
+.legal-doc a { color: #534AB7; text-decoration: underline; }
+.legal-doc hr { border: none; border-top: 1px solid rgba(0,0,0,0.08); margin: 28px 0 16px; }
+.legal-doc table { width: 100%; border-collapse: collapse; margin: 0 0 16px; font-size: 13px; display: block; overflow-x: auto; }
+.legal-doc th, .legal-doc td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.legal-doc th { font-weight: 600; background: #F4F3F0; }

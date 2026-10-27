@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
 import toast from 'react-hot-toast'
 import type { Standing } from '../lib/billing'
+import { TERMS_VERSION } from '../legal'
 
 interface User {
   id: string
@@ -42,7 +43,7 @@ let intervalId: ReturnType<typeof setInterval> | null = null
 async function loadUserContext(userId: string) {
   const [profileRes, termsRes, orgRes, standingRes] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', userId).single(),
-    supabase.from('terms_acceptance').select('id').eq('user_id', userId).limit(1).maybeSingle(),
+    supabase.from('terms_acceptance').select('id').eq('user_id', userId).eq('version', TERMS_VERSION).limit(1).maybeSingle(),
     supabase.from('organizations').select('name').maybeSingle(),
     supabase.rpc('org_standing')
   ])
