@@ -208,10 +208,10 @@ export default function AdminSections() {
         <form onSubmit={handleAdd}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="sections-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Course
               </label>
-              <select
+              <select id="sections-field-1"
                 value={courseId}
                 onChange={e => setCourseId(e.target.value)}
                 style={{ ...inputStyle, borderColor: errors.courseId ? '#A32D2D' : '#e5e7eb' }}
@@ -224,10 +224,10 @@ export default function AdminSections() {
               {errors.courseId && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.courseId}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="sections-field-2" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Term
               </label>
-              <select
+              <select id="sections-field-2"
                 value={termId}
                 onChange={e => setTermId(e.target.value)}
                 style={{ ...inputStyle, borderColor: errors.termId ? '#A32D2D' : '#e5e7eb' }}
@@ -240,10 +240,10 @@ export default function AdminSections() {
               {errors.termId && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.termId}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="sections-field-3" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Section Number
               </label>
-              <input
+              <input id="sections-field-3"
                 value={sectionNumber}
                 onChange={e => setSectionNumber(e.target.value)}
                 placeholder="01"
@@ -252,10 +252,10 @@ export default function AdminSections() {
               {errors.sectionNumber && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.sectionNumber}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="sections-field-4" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Hours Required
               </label>
-              <input
+              <input id="sections-field-4"
                 type="number"
                 value={hoursRequired}
                 onChange={e => setHoursRequired(e.target.value)}
@@ -268,10 +268,10 @@ export default function AdminSections() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="sections-field-5" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Day of Week
               </label>
-              <select
+              <select id="sections-field-5"
                 value={dayOfWeek}
                 onChange={e => setDayOfWeek(e.target.value)}
                 style={{ ...inputStyle, borderColor: errors.dayOfWeek ? '#A32D2D' : '#e5e7eb' }}
@@ -284,10 +284,10 @@ export default function AdminSections() {
               {errors.dayOfWeek && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.dayOfWeek}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="sections-field-6" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Time
               </label>
-              <select
+              <select id="sections-field-6"
                 value={timeSlot}
                 onChange={e => setTimeSlot(e.target.value)}
                 style={{ ...inputStyle, borderColor: errors.timeSlot ? '#A32D2D' : '#e5e7eb' }}
@@ -339,7 +339,7 @@ export default function AdminSections() {
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>
-                  {h}
+                  {h || <span className="sr-only">Actions</span>}
                 </th>
               ))}
             </tr>
@@ -377,13 +377,13 @@ export default function AdminSections() {
                 <td style={{ padding: '12px 16px' }}>
                   {editingId === section.id ? (
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                      <select value={editDay} onChange={e => setEditDay(e.target.value)} style={smallSelectStyle}>
+                      <select aria-label="Day" value={editDay} onChange={e => setEditDay(e.target.value)} style={smallSelectStyle}>
                         <option value="">Day...</option>
                         {DAYS.map(d => (
                           <option key={d} value={d}>{d}</option>
                         ))}
                       </select>
-                      <select value={editTime} onChange={e => setEditTime(e.target.value)} style={smallSelectStyle}>
+                      <select aria-label="Time" value={editTime} onChange={e => setEditTime(e.target.value)} style={smallSelectStyle}>
                         <option value="">Time...</option>
                         {TIME_SLOTS.map(t => (
                           <option key={t} value={t}>{t}</option>
@@ -415,7 +415,7 @@ export default function AdminSections() {
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <span style={{
                         fontSize: 13,
-                        color: section.day_of_week && section.time_slot ? '#1A1A2E' : '#9ca3af',
+                        color: section.day_of_week && section.time_slot ? '#1A1A2E' : '#6B6B80',
                         fontStyle: section.day_of_week && section.time_slot ? 'normal' : 'italic'
                       }}>
                         {formatDayTime(section.day_of_week, section.time_slot)}

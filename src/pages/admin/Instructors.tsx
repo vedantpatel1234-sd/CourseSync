@@ -330,32 +330,32 @@ export default function AdminInstructors() {
         <form onSubmit={handleAdd}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Full Name</label>
-              <input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Dr. Jane Smith"
+              <label htmlFor="instructors-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Full Name</label>
+              <input id="instructors-field-1" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Dr. Jane Smith"
                 style={{ ...inputStyle, borderColor: errors.fullName ? '#A32D2D' : '#e5e7eb' }} />
               {errors.fullName && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.fullName}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@university.ca"
+              <label htmlFor="instructors-field-2" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Email</label>
+              <input id="instructors-field-2" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@university.ca"
                 style={{ ...inputStyle, borderColor: errors.email ? '#A32D2D' : '#e5e7eb' }} />
               {errors.email && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.email}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Department</label>
-              <input value={department} onChange={e => setDepartment(e.target.value)} placeholder="Computer Science"
+              <label htmlFor="instructors-field-3" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Department</label>
+              <input id="instructors-field-3" value={department} onChange={e => setDepartment(e.target.value)} placeholder="Computer Science"
                 style={{ ...inputStyle, borderColor: errors.department ? '#A32D2D' : '#e5e7eb' }} />
               {errors.department && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.department}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Title</label>
-              <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Associate Professor"
+              <label htmlFor="instructors-field-4" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Title</label>
+              <input id="instructors-field-4" value={title} onChange={e => setTitle(e.target.value)} placeholder="Associate Professor"
                 style={{ ...inputStyle, borderColor: errors.title ? '#A32D2D' : '#e5e7eb' }} />
               {errors.title && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.title}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Max Hours / Term</label>
-              <input type="number" value={maxHours} onChange={e => setMaxHours(e.target.value)} min={1} max={100}
+              <label htmlFor="instructors-field-5" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Max Hours / Term</label>
+              <input id="instructors-field-5" type="number" value={maxHours} onChange={e => setMaxHours(e.target.value)} min={1} max={100}
                 style={{ ...inputStyle, borderColor: errors.maxHours ? '#A32D2D' : '#e5e7eb' }} />
               {errors.maxHours && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.maxHours}</p>}
             </div>

@@ -74,7 +74,7 @@ Do these in one sitting if you can.
 | 9 | Route small AI jobs to a cheaper model | Cuts your Anthropic bill; one line in the allow-list plus call sites | P2 | Me | S |
 | 10 | Performance: wrap `app_org_id()` in a subselect in policies | Matters only with large tables | P2 | Me | S |
 | 11 | MFA and SSO | Colleges ask for both. Not built; the security page says so honestly | P1 to P2 | Both | L |
-| 12 | Accessibility audit (WCAG 2.1 AA) | Public colleges commonly require it and may ask for a conformance report. Nothing has been audited | **P1** | Both | M |
+| 12 | Accessibility: manual audit with a screen reader | **Automated checks and the first round of fixes are done** (see `docs/accessibility.md`). Still needed: screen-reader and zoom testing, a text alternative for the charts, and a recorded result before anything is claimed to a college | **P1** | Both | S to M |
 | 13 | Verify mobile layout on real devices | Responsive CSS exists; never checked on a phone | P1 | You | S |
 | 14 | SIS / calendar integrations | Expect to be asked; unknown until customers say which | P2 | Both | L |
 
@@ -164,13 +164,13 @@ which vendor page) but I cannot replace a lawyer's judgement on the liability an
   (I believe Supabase rolls the user back; I have not seen it).
 - Claims in the legal drafts marked `[VERIFY]`.
 - That the model name the app sends (`claude-opus-5`) is the one you want to pay for on every call.
-- Mobile behaviour on real devices, and accessibility.
+- Mobile behaviour on real devices, and accessibility with a real screen reader (automated checks pass; see `docs/accessibility.md` section 3).
 - Whether "CourseSync" is free to use as a name.
 
 ## 10. Suggested order
 
 1. Section 2, steps 1 to 6 (one evening). Then the throwaway-school rehearsal (step 8).
-2. ~~Build #1 (add admins and coordinators)~~ done. Prepare #12 (accessibility).
+2. ~~Build #1 (add admins and coordinators)~~ done. #12 (accessibility): automated checks and fixes done; the manual pass is yours (half a day, checklist in `docs/accessibility.md`).
 3. Staging environment + error monitoring + branch protection (finish Phase 3).
 4. Landing page + demo environment + pricing (Phase 4).
 5. Offer a free pilot to one department. Real feedback decides the rest of section 3.

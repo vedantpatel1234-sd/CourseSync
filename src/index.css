@@ -65,6 +65,47 @@ table tbody tr {
   box-shadow: var(--shadow-card-hover);
 }
 
+/* Keyboard focus. Many inputs set outline: none inline, which would leave keyboard users unable to
+   see where they are (WCAG 2.4.7), so this is !important to win over inline styles. It only shows
+   for keyboard focus, not for mouse clicks. The content area is focused by script after navigation
+   and should not draw a ring around the whole page. */
+:focus-visible {
+  outline: 2px solid #534AB7 !important;
+  outline-offset: 2px;
+}
+main:focus-visible {
+  outline: none !important;
+}
+
+/* Hidden until focused: lets keyboard users jump past the navigation (WCAG 2.4.1). */
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 3000;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #1A1A2E;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Respect the operating-system setting for people who get ill from motion (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 ::selection {
   background: rgba(83, 74, 183, 0.2);
 }
@@ -105,9 +146,14 @@ table tbody tr {
     top: 0;
     left: 0;
     transform: translateX(-100%) !important;
-    transition: transform 0.25s ease;
+    /* Off-screen links must not be reachable by keyboard or screen reader. visibility flips only
+       after the slide-out finishes so the animation still plays. */
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0s linear 0.25s;
   }
   .app-sidebar.open {
+    visibility: visible;
+    transition: transform 0.25s ease, visibility 0s;
     transform: translateX(0) !important;
     box-shadow: 4px 0 24px rgba(16, 24, 40, 0.2);
     z-index: 1000;

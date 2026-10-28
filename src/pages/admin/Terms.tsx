@@ -164,8 +164,8 @@ export default function AdminTerms() {
         <form onSubmit={handleAdd}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Name</label>
-              <input
+              <label htmlFor="terms-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Name</label>
+              <input id="terms-field-1"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Fall 2026"
@@ -174,8 +174,8 @@ export default function AdminTerms() {
               {errors.name && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.name}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Start Date</label>
-              <input
+              <label htmlFor="terms-field-2" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Start Date</label>
+              <input id="terms-field-2"
                 type="date"
                 value={startDate}
                 onChange={e => setStartDate(e.target.value)}
@@ -184,8 +184,8 @@ export default function AdminTerms() {
               {errors.startDate && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.startDate}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>End Date</label>
-              <input
+              <label htmlFor="terms-field-3" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>End Date</label>
+              <input id="terms-field-3"
                 type="date"
                 value={endDate}
                 onChange={e => setEndDate(e.target.value)}
@@ -218,7 +218,7 @@ export default function AdminTerms() {
                   padding: '12px 16px', textAlign: 'left', fontSize: 12,
                   fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px'
                 }}>
-                  {h}
+                  {h || <span className="sr-only">Actions</span>}
                 </th>
               ))}
             </tr>
@@ -235,13 +235,13 @@ export default function AdminTerms() {
                   {isEditing ? (
                     <>
                       <td style={{ padding: '10px 16px' }}>
-                        <input value={editName} onChange={e => setEditName(e.target.value)} style={{ ...inputStyle, padding: '6px 10px', fontSize: 13 }} />
+                        <input aria-label="Term name" value={editName} onChange={e => setEditName(e.target.value)} style={{ ...inputStyle, padding: '6px 10px', fontSize: 13 }} />
                       </td>
                       <td style={{ padding: '10px 16px' }}>
-                        <input type="date" value={editStart} onChange={e => setEditStart(e.target.value)} style={{ ...inputStyle, padding: '6px 10px', fontSize: 13 }} />
+                        <input aria-label="Start date" type="date" value={editStart} onChange={e => setEditStart(e.target.value)} style={{ ...inputStyle, padding: '6px 10px', fontSize: 13 }} />
                       </td>
                       <td style={{ padding: '10px 16px' }}>
-                        <input type="date" value={editEnd} onChange={e => setEditEnd(e.target.value)} style={{ ...inputStyle, padding: '6px 10px', fontSize: 13 }} />
+                        <input aria-label="End date" type="date" value={editEnd} onChange={e => setEditEnd(e.target.value)} style={{ ...inputStyle, padding: '6px 10px', fontSize: 13 }} />
                       </td>
                       <td style={{ padding: '10px 16px' }} colSpan={2}>
                         <div style={{ display: 'flex', gap: 8 }}>

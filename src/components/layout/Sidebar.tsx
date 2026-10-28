@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, ClipboardList, Zap, Users, CalendarDays,
@@ -8,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '../../stores/authStore'
 import { supabase } from '../../lib/supabase'
+import { useDialog } from '../../lib/useDialog'
 
 const adminNav = [
   { label: 'Dashboard', to: '/admin', icon: <LayoutDashboard size={17} /> },
@@ -46,12 +48,79 @@ const coordinatorNav = [
   { label: 'Help', to: '/coordinator/help', icon: <HelpCircle size={17} /> },
 ]
 
+// Rendered into document.body rather than inside the sidebar: on phones the sidebar is slid
+// off-screen with a CSS transform, and a position: fixed overlay inside a transformed element is
+// sized to that element instead of the screen.
+function SignOutConfirm({ name, onCancel, onConfirm }: { name: string; onCancel: () => void; onConfirm: () => void }) {
+  const dialogRef = useDialog({ onClose: onCancel })
+  return createPortal(
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(26,26,46,0.5)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
+    }}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="signout-title" aria-describedby="signout-text" style={{
+        background: 'white', borderRadius: 14, padding: 28,
+        width: 360, maxWidth: '90vw',
+        fontFamily: 'DM Sans, sans-serif',
+        boxShadow: 'var(--shadow-pop)'
+      }}>
+        <h2 id="signout-title" style={{ fontSize: 17, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
+          Sign out?
+        </h2>
+        <p id="signout-text" style={{ fontSize: 13, color: '#6B6B80', marginBottom: 24 }}>
+          You'll need to sign back in to access {name}'s account.
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+          <button
+            data-autofocus
+            onClick={onCancel}
+            style={{
+              padding: '9px 18px', background: '#f3f4f6', color: '#6B6B80',
+              border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600,
+              cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            style={{
+              padding: '9px 18px', background: '#A32D2D', color: 'white',
+              border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600,
+              cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
+            }}
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
 export default function Sidebar() {
   const { user, signOut, organizationName } = useAuthStore()
   const navigate = useNavigate()
   const [unreadCount, setUnreadCount] = useState(0)
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const sidebarRef = useRef<HTMLDivElement>(null)
+  const hamburgerRef = useRef<HTMLButtonElement>(null)
+  const drawerWasOpen = useRef(false)
+
+  // The phone drawer behaves like a dialog: focus goes in when it opens, Escape closes it, and
+  // focus returns to the menu button afterwards.
+  useEffect(() => {
+    if (mobileOpen) {
+      drawerWasOpen.current = true
+      sidebarRef.current?.querySelector<HTMLElement>('nav a')?.focus()
+      const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') setMobileOpen(false) }
+      document.addEventListener('keydown', onKeyDown)
+      return () => document.removeEventListener('keydown', onKeyDown)
+    }
+    if (drawerWasOpen.current) { drawerWasOpen.current = false; hamburgerRef.current?.focus() }
+  }, [mobileOpen])
 
   useEffect(() => {
     if (!user || user.role !== 'instructor') return
@@ -86,9 +155,12 @@ export default function Sidebar() {
     <>
       {!mobileOpen && (
         <button
+          ref={hamburgerRef}
           className="sidebar-hamburger"
           onClick={() => setMobileOpen(true)}
           aria-label="Open menu"
+          aria-expanded={false}
+          aria-controls="app-sidebar"
         >
           <Menu size={20} color="#534AB7" />
         </button>
@@ -96,10 +168,11 @@ export default function Sidebar() {
 
       <div
         className={`sidebar-backdrop${mobileOpen ? ' open' : ''}`}
+        aria-hidden="true"
         onClick={() => setMobileOpen(false)}
       />
 
-      <div className={`app-sidebar${mobileOpen ? ' open' : ''}`} style={{
+      <div id="app-sidebar" ref={sidebarRef} className={`app-sidebar${mobileOpen ? ' open' : ''}`} style={{
       width: 208,
       height: '100vh',
       background: 'white',
@@ -122,7 +195,7 @@ export default function Sidebar() {
             display: 'flex',
             alignItems: 'center', justifyContent: 'center'
           }}>
-            <span style={{ fontSize: 18 }}>🎓</span>
+            <span aria-hidden="true" style={{ fontSize: 18 }}>🎓</span>
           </div>
           <div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A2E' }}>CourseSync</div>
@@ -132,7 +205,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav links */}
-      <nav style={{ flex: 1, padding: '8px 8px', overflowY: 'auto' }}>
+      <nav aria-label="Main" style={{ flex: 1, padding: '8px 8px', overflowY: 'auto' }}>
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -162,7 +235,7 @@ export default function Sidebar() {
             {item.icon}
             <span style={{ flex: 1 }}>{item.label}</span>
             {item.to === '/instructor/notifications' && unreadCount > 0 && (
-              <span style={{
+              <span aria-label={`${unreadCount} unread`} style={{
                 minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9,
                 background: '#A32D2D', color: 'white',
                 fontSize: 10.5, fontWeight: 700,
@@ -227,46 +300,7 @@ export default function Sidebar() {
       </div>
 
       {showSignOutConfirm && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(26,26,46,0.5)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
-        }}>
-          <div style={{
-            background: 'white', borderRadius: 14, padding: 28,
-            width: 360, maxWidth: '90vw',
-            fontFamily: 'DM Sans, sans-serif',
-            boxShadow: 'var(--shadow-pop)'
-          }}>
-            <h2 style={{ fontSize: 17, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
-              Sign out?
-            </h2>
-            <p style={{ fontSize: 13, color: '#6B6B80', marginBottom: 24 }}>
-              You'll need to sign back in to access {user.full_name}'s account.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-              <button
-                onClick={() => setShowSignOutConfirm(false)}
-                style={{
-                  padding: '9px 18px', background: '#f3f4f6', color: '#6B6B80',
-                  border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600,
-                  cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSignOut}
-                style={{
-                  padding: '9px 18px', background: '#A32D2D', color: 'white',
-                  border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 600,
-                  cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
-                }}
-              >
-                Sign out
-              </button>
-            </div>
-          </div>
-        </div>
+        <SignOutConfirm name={user.full_name} onCancel={() => setShowSignOutConfirm(false)} onConfirm={handleSignOut} />
       )}
     </div>
     </>

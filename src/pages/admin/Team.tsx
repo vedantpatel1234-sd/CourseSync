@@ -193,7 +193,7 @@ export default function AdminTeam() {
                   <th key={h} style={{
                     padding: '10px 24px', textAlign: 'left', fontSize: 12, fontWeight: 600,
                     color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px'
-                  }}>{h}</th>
+                  }}>{h || <span className="sr-only">Actions</span>}</th>
                 ))}
               </tr>
             </thead>

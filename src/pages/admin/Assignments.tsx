@@ -277,10 +277,10 @@ export default function AdminAssignments() {
         <form onSubmit={handleAssign}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="assignments-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Section
               </label>
-              <select
+              <select id="assignments-field-1"
                 value={selectedSection}
                 onChange={e => { setSelectedSection(e.target.value); setSelectedInstructor('') }}
                 style={selectStyle}
@@ -294,10 +294,10 @@ export default function AdminAssignments() {
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="assignments-field-2" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Instructor
               </label>
-              <select value={selectedInstructor} onChange={e => setSelectedInstructor(e.target.value)} style={selectStyle}>
+              <select id="assignments-field-2" value={selectedInstructor} onChange={e => setSelectedInstructor(e.target.value)} style={selectStyle}>
                 <option value="">Select instructor...</option>
                 {instructors.map(i => {
                   const hasConflict = selectedSectionObj ? (instructorConflicts[i.id]?.length ?? 0) > 0 : false
@@ -365,7 +365,7 @@ export default function AdminAssignments() {
                   fontSize: 12, fontWeight: 600, color: '#6B6B80',
                   textTransform: 'uppercase', letterSpacing: '0.5px'
                 }}>
-                  {h}
+                  {h || <span className="sr-only">Actions</span>}
                 </th>
               ))}
             </tr>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useDialog } from '../lib/useDialog'
 
 interface SessionWarningModalProps {
   secondsLeft: number
@@ -24,6 +25,8 @@ export default function SessionWarningModal({ secondsLeft, onStayLoggedIn, onLog
     return () => clearTimeout(timer)
   }, [countdown, onLogout])
 
+  const dialogRef = useDialog({ onClose: onStayLoggedIn })
+
   const minutes = Math.floor(countdown / 60)
   const seconds = countdown % 60
 
@@ -33,7 +36,8 @@ export default function SessionWarningModal({ secondsLeft, onStayLoggedIn, onLog
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       zIndex: 2000, padding: 20, fontFamily: 'DM Sans, sans-serif'
     }}>
-      <div style={{
+      <div ref={dialogRef} role="alertdialog" aria-modal="true"
+        aria-labelledby="session-warning-title" aria-describedby="session-warning-text" style={{
         background: 'white', borderRadius: 16, padding: 36,
         maxWidth: 420, width: '100%',
         boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
@@ -47,10 +51,10 @@ export default function SessionWarningModal({ secondsLeft, onStayLoggedIn, onLog
         }}>
           ⏰
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
+        <h2 id="session-warning-title" style={{ fontSize: 20, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
           Are you still there?
         </h2>
-        <p style={{ fontSize: 14, color: '#6B6B80', marginBottom: 8, lineHeight: 1.6 }}>
+        <p id="session-warning-text" style={{ fontSize: 14, color: '#6B6B80', marginBottom: 8, lineHeight: 1.6 }}>
           You have been inactive for a while. For your security, you will be signed out in:
         </p>
         <div style={{
@@ -73,6 +77,7 @@ export default function SessionWarningModal({ secondsLeft, onStayLoggedIn, onLog
             Sign out
           </button>
           <button
+            data-autofocus
             onClick={onStayLoggedIn}
             style={{
               flex: 1, padding: '11px 0',

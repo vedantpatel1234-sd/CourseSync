@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { LEGAL_DOCS, LEGAL_STATUS, TERMS_VERSION, isLegalDocId } from '../legal'
 import type { LegalDocId } from '../legal'
+import { usePageTitle } from '../lib/pageTitles'
 
 const ORDER: LegalDocId[] = ['terms', 'privacy', 'subprocessors', 'dpa', 'security']
 
@@ -10,9 +11,10 @@ const ORDER: LegalDocId[] = ['terms', 'privacy', 'subprocessors', 'dpa', 'securi
 // The text lives in src/legal/content/*.md so it can be reviewed and edited as plain documents.
 export default function LegalPage() {
   const { doc } = useParams<{ doc: string }>()
+  usePageTitle(isLegalDocId(doc) ? LEGAL_DOCS[doc].title : 'Document not found')
 
   return (
-    <div style={{ minHeight: '100vh', padding: '32px 20px', fontFamily: 'DM Sans, sans-serif' }}>
+    <div role="main" style={{ minHeight: '100vh', padding: '32px 20px', fontFamily: 'DM Sans, sans-serif' }}>
       <div style={{ maxWidth: 780, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 24 }}>
           <Link to="/login" style={{ fontSize: 16, fontWeight: 700, color: '#1A1A2E', textDecoration: 'none' }}>🎓 CourseSync</Link>

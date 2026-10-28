@@ -254,6 +254,7 @@ export default function AdminImport() {
         {tabs.map(tab => (
           <button
             key={tab.value}
+            aria-pressed={importType === tab.value}
             onClick={() => { setImportType(tab.value); resetFile() }}
             style={{
               padding: '8px 20px',
@@ -349,10 +350,10 @@ export default function AdminImport() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                 {targetFields.map(field => (
                   <div key={field.key}>
-                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+                    <label htmlFor="import-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                       {field.label}{field.required && ' *'}
                     </label>
-                    <select
+                    <select id="import-field-1"
                       value={columnMapping[field.key] || ''}
                       onChange={e => setColumnMapping(prev => ({ ...prev, [field.key]: e.target.value || null }))}
                       style={{

@@ -3,8 +3,10 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../stores/authStore'
 import toast from 'react-hot-toast'
 import { Eye, EyeOff } from 'lucide-react'
+import { usePageTitle } from '../lib/pageTitles'
 
 export default function LoginPage() {
+  usePageTitle('Sign in')
   const navigate = useNavigate()
   const { signIn, loading, user } = useAuthStore()
   const [email, setEmail] = useState('')
@@ -30,7 +32,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{
+    <div role="main" style={{
       minHeight: '100vh',
       backgroundColor: '#F4F3F0',
       display: 'flex',
@@ -57,10 +59,10 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+            <label htmlFor="loginpage-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
               Email address
             </label>
-            <input
+            <input id="loginpage-field-1"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -79,11 +81,11 @@ export default function LoginPage() {
           </div>
 
           <div style={{ marginBottom: 24 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+            <label htmlFor="loginpage-field-2" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
               Password
             </label>
             <div style={{ position: 'relative' }}>
-              <input
+              <input id="loginpage-field-2"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -101,6 +103,8 @@ export default function LoginPage() {
               />
               <button
                 type="button"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
                   position: 'absolute',

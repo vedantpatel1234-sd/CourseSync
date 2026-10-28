@@ -173,7 +173,7 @@ export default function InstructorAvailability() {
                           borderRadius: 6,
                           border: 'none',
                           background: classInfo ? '#EEEDFE' : isUnavailable ? '#FCEBEB' : '#f8f8f8',
-                          color: classInfo ? '#534AB7' : isUnavailable ? '#A32D2D' : '#9ca3af',
+                          color: classInfo ? '#534AB7' : isUnavailable ? '#A32D2D' : '#6B6B80',
                           fontSize: 12,
                           fontWeight: 500,
                           cursor: classInfo ? 'default' : 'pointer',

@@ -4,11 +4,13 @@ import toast from 'react-hot-toast'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 import { validatePassword } from '../lib/passwordRules'
+import { usePageTitle } from '../lib/pageTitles'
 
 // Landing page for invitation and password-reset email links (Supabase signs the
 // visitor in from the link), and also used by signed-in users to change their
 // password from the sidebar.
 export default function SetPassword() {
+  usePageTitle('Set your password')
   const navigate = useNavigate()
   const { user, initializing } = useAuthStore()
   const [password, setPassword] = useState('')
@@ -17,7 +19,7 @@ export default function SetPassword() {
   const [saving, setSaving] = useState(false)
 
   const shell = (children: React.ReactNode) => (
-    <div style={{
+    <div role="main" style={{
       minHeight: '100vh', backgroundColor: '#F4F3F0', display: 'flex',
       alignItems: 'center', justifyContent: 'center',
       fontFamily: 'DM Sans, sans-serif', padding: 20
@@ -92,8 +94,8 @@ export default function SetPassword() {
       </p>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>New password</label>
-          <input
+          <label htmlFor="setpassword-field-1" style={labelStyle}>New password</label>
+          <input id="setpassword-field-1"
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
@@ -103,8 +105,8 @@ export default function SetPassword() {
           />
         </div>
         <div style={{ marginBottom: 20 }}>
-          <label style={labelStyle}>Confirm password</label>
-          <input
+          <label htmlFor="setpassword-field-2" style={labelStyle}>Confirm password</label>
+          <input id="setpassword-field-2"
             type="password"
             value={confirm}
             onChange={e => setConfirm(e.target.value)}

@@ -253,10 +253,10 @@ export default function AdminDrafts() {
         </p>
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end' }}>
           <div style={{ flex: 1 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+            <label htmlFor="drafts-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
               Term
             </label>
-            <select
+            <select id="drafts-field-1"
               value={aiTermId}
               onChange={e => setAiTermId(e.target.value)}
               style={inputStyle}
@@ -331,10 +331,10 @@ export default function AdminDrafts() {
         <form onSubmit={handleAdd}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="drafts-field-2" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Draft Name
               </label>
-              <input
+              <input id="drafts-field-2"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. Winter 2026 Draft v1"
@@ -343,10 +343,10 @@ export default function AdminDrafts() {
               {errors.name && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.name}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+              <label htmlFor="drafts-field-3" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                 Term
               </label>
-              <select
+              <select id="drafts-field-3"
                 value={termId}
                 onChange={e => setTermId(e.target.value)}
                 style={{ ...inputStyle, borderColor: errors.termId ? '#A32D2D' : '#e5e7eb' }}

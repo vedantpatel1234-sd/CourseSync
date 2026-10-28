@@ -21,7 +21,8 @@ export default function InstructorHelp() {
         {faqs.map((faq, i) => (
           <div key={i} style={{ borderBottom: i < faqs.length - 1 ? '1px solid rgba(0,0,0,0.06)' : 'none' }}>
             <button
-              onClick={() => setOpenFaq(openFaq === i ? null : i)}
+              aria-expanded={openFaq === i}
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
               style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: 'DM Sans, sans-serif' }}
             >
               <span style={{ fontSize: 14, fontWeight: 500, color: '#1A1A2E' }}>{faq.q}</span>

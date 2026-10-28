@@ -123,13 +123,13 @@ export default function AdminCalendar() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <select value={department} onChange={e => setDepartment(e.target.value)} style={inputStyle}>
+          <select aria-label="Filter by department" value={department} onChange={e => setDepartment(e.target.value)} style={inputStyle}>
             <option value="all">All Departments</option>
             {departments.map(d => (
               <option key={d} value={d}>{d}</option>
             ))}
           </select>
-          <select value={termId} onChange={e => { setTermId(e.target.value); setDepartment('all') }} style={inputStyle}>
+          <select aria-label="Filter by term" value={termId} onChange={e => { setTermId(e.target.value); setDepartment('all') }} style={inputStyle}>
             {terms.map(t => (
               <option key={t.id} value={t.id}>{t.name}{t.is_active ? ' (active)' : ''}</option>
             ))}

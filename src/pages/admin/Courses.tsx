@@ -133,8 +133,8 @@ export default function AdminCourses() {
         <form onSubmit={handleAdd}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1.5fr 2fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Code</label>
-              <input
+              <label htmlFor="courses-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Code</label>
+              <input id="courses-field-1"
                 value={code}
                 onChange={e => setCode(e.target.value)}
                 placeholder="COMP1234"
@@ -143,8 +143,8 @@ export default function AdminCourses() {
               {errors.code && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.code}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Name</label>
-              <input
+              <label htmlFor="courses-field-2" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Name</label>
+              <input id="courses-field-2"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Introduction to Programming"
@@ -153,8 +153,8 @@ export default function AdminCourses() {
               {errors.name && <p style={{ color: '#A32D2D', fontSize: 12, marginTop: 4 }}>{errors.name}</p>}
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Department (optional)</label>
-              <input
+              <label htmlFor="courses-field-3" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Department (optional)</label>
+              <input id="courses-field-3"
                 value={department}
                 onChange={e => setDepartment(e.target.value)}
                 placeholder="Computer Science"
@@ -162,8 +162,8 @@ export default function AdminCourses() {
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Description (optional)</label>
-              <input
+              <label htmlFor="courses-field-4" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>Description (optional)</label>
+              <input id="courses-field-4"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="Brief description..."
@@ -193,7 +193,7 @@ export default function AdminCourses() {
                   padding: '12px 16px', textAlign: 'left', fontSize: 12,
                   fontWeight: 600, color: '#6B6B80', textTransform: 'uppercase', letterSpacing: '0.5px'
                 }}>
-                  {h}
+                  {h || <span className="sr-only">Actions</span>}
                 </th>
               ))}
             </tr>
@@ -212,7 +212,7 @@ export default function AdminCourses() {
                 <td style={{ padding: '12px 16px' }}>
                   {editingDeptId === course.id ? (
                     <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                      <input
+                      <input aria-label="Department"
                         value={editDept}
                         onChange={e => setEditDept(e.target.value)}
                         placeholder="Computer Science"
@@ -244,7 +244,7 @@ export default function AdminCourses() {
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <span style={{
                         fontSize: 13,
-                        color: course.department ? '#1A1A2E' : '#9ca3af',
+                        color: course.department ? '#1A1A2E' : '#6B6B80',
                         fontStyle: course.department ? 'normal' : 'italic'
                       }}>
                         {course.department || 'Uncategorized'}

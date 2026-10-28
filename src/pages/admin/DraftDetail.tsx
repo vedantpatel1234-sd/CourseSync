@@ -7,6 +7,7 @@ import { notifyInstructor } from '../../lib/notifications'
 import { formatDayTime } from '../../lib/schedule'
 import { checkAssignmentConflicts } from '../../lib/conflicts'
 import toast from 'react-hot-toast'
+import { useDialog } from '../../lib/useDialog'
 
 interface DraftInfo {
   id: string
@@ -86,6 +87,7 @@ export default function AdminDraftDetail() {
   const [assigning, setAssigning] = useState(false)
 
   const [showPublishModal, setShowPublishModal] = useState(false)
+  const publishDialogRef = useDialog({ active: showPublishModal, onClose: () => setShowPublishModal(false) })
   const [publishConflicts, setPublishConflicts] = useState<PublishConflict[]>([])
   const [resolutions, setResolutions] = useState<Record<string, 'keep_live' | 'use_draft'>>({})
   const [publishing, setPublishing] = useState(false)
@@ -496,10 +498,10 @@ export default function AdminDraftDetail() {
             <form onSubmit={handleAddDraftAssignment}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+                  <label htmlFor="draftdetail-field-1" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                     Section
                   </label>
-                  <select
+                  <select id="draftdetail-field-1"
                     value={selectedSection}
                     onChange={e => { setSelectedSection(e.target.value); setSelectedInstructor('') }}
                     style={inputStyle}
@@ -518,10 +520,10 @@ export default function AdminDraftDetail() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
+                  <label htmlFor="draftdetail-field-2" style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#1A1A2E', marginBottom: 6 }}>
                     Instructor
                   </label>
-                  <select value={selectedInstructor} onChange={e => setSelectedInstructor(e.target.value)} style={inputStyle}>
+                  <select id="draftdetail-field-2" value={selectedInstructor} onChange={e => setSelectedInstructor(e.target.value)} style={inputStyle}>
                     <option value="">Select instructor...</option>
                     {instructors.map(i => {
                       const hasConflict = selectedSectionObj ? (instructorConflicts[i.id]?.length ?? 0) > 0 : false
@@ -616,7 +618,7 @@ export default function AdminDraftDetail() {
                       fontSize: 12, fontWeight: 600, color: '#6B6B80',
                       textTransform: 'uppercase', letterSpacing: '0.5px'
                     }}>
-                      {h}
+                      {h || <span className="sr-only">Actions</span>}
                     </th>
                   ))}
                 </tr>
@@ -678,12 +680,12 @@ export default function AdminDraftDetail() {
           position: 'fixed', inset: 0, background: 'rgba(26,26,46,0.5)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}>
-          <div style={{
+          <div ref={publishDialogRef} role="dialog" aria-modal="true" aria-labelledby="publish-conflicts-title" style={{
             background: 'white', borderRadius: 14, padding: 28,
             width: 640, maxWidth: '90vw', maxHeight: '85vh', overflowY: 'auto',
             fontFamily: 'DM Sans, sans-serif'
           }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
+            <h2 id="publish-conflicts-title" style={{ fontSize: 18, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
               Resolve Publish Conflicts
             </h2>
             <p style={{ fontSize: 13, color: '#6B6B80', marginBottom: 20 }}>

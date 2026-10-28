@@ -219,6 +219,10 @@ real migrations in an in-process Postgres ([PGlite](https://pglite.dev)) and che
 database roles, that one organization can never read or change another's data. `tests/provision/`
 covers the onboarding script's rollback behaviour. Neither needs a Supabase project or Docker.
 
+`src/a11y/` renders every route as every role and runs the axe accessibility engine over it, with forms
+open; a separate test checks text-colour contrast. See [docs/accessibility.md](docs/accessibility.md) for what
+is and is not covered, and the manual checks still to do.
+
 ## Other scripts
 
 ```bash

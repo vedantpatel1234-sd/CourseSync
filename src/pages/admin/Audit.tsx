@@ -99,6 +99,7 @@ export default function AdminAudit() {
         {FILTERS.map(f => (
           <button
             key={f}
+            aria-pressed={filter === f}
             onClick={() => setFilter(f)}
             style={{
               padding: '7px 16px',

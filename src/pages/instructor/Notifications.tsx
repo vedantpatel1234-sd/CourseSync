@@ -191,6 +191,10 @@ export default function InstructorNotifications() {
               </div>
             </div>
             <button
+              type="button"
+              role="switch"
+              aria-checked={!!prefs[item.key]}
+              aria-label={item.label}
               onClick={() => togglePref(item.key)}
               style={{
                 width: 44,

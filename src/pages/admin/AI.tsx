@@ -420,7 +420,7 @@ export default function AdminAI() {
         display: 'flex',
         gap: 12
       }}>
-        <input
+        <input aria-label="Message the scheduling copilot"
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}

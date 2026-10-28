@@ -51,7 +51,9 @@ function SortableItem({ section, onRemove, onNoteChange }: {
         gap: 12,
         marginBottom: 8
       }}>
-        <div {...attributes} {...listeners} style={{ cursor: 'grab', color: '#9ca3af', flexShrink: 0 }}>
+        <div {...attributes} {...listeners}
+          aria-label={`Reorder ${section.course.code} section ${section.section_number}. Press space to pick up, arrow keys to move.`}
+          style={{ cursor: 'grab', color: '#6B6B80', flexShrink: 0 }}>
           <GripVertical size={18} />
         </div>
         <div style={{ flex: 1 }}>
@@ -66,7 +68,7 @@ function SortableItem({ section, onRemove, onNoteChange }: {
               {section.term.name} • {section.hours_required}h
             </span>
           </div>
-          <input
+          <input aria-label={`Note for ${section.course.code} section ${section.section_number}`}
             value={section.note}
             onChange={e => onNoteChange(section.id, e.target.value)}
             placeholder="Add a note (optional)..."
@@ -83,8 +85,10 @@ function SortableItem({ section, onRemove, onNoteChange }: {
           />
         </div>
         <button
+          type="button"
+          aria-label={`Remove ${section.course.code} section ${section.section_number}`}
           onClick={() => onRemove(section.id)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af', flexShrink: 0 }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B6B80', flexShrink: 0 }}
         >
           <X size={16} />
         </button>

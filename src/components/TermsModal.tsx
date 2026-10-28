@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 import toast from 'react-hot-toast'
 import { TERMS_VERSION } from '../legal'
+import { useDialog } from '../lib/useDialog'
 
 interface TermsModalProps {
   onAccepted: () => void
@@ -12,6 +13,7 @@ export default function TermsModal({ onAccepted }: TermsModalProps) {
   const [checked, setChecked] = useState(false)
   const [loading, setLoading] = useState(false)
   const { user } = useAuthStore()
+  const dialogRef = useDialog()
 
   const handleAccept = async () => {
     if (!checked || !user) return
@@ -37,7 +39,7 @@ export default function TermsModal({ onAccepted }: TermsModalProps) {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       zIndex: 1000, padding: 20
     }}>
-      <div style={{
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="terms-title" style={{
         background: 'white', borderRadius: 16, padding: 36,
         maxWidth: 480, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
         fontFamily: 'DM Sans, sans-serif'
@@ -49,7 +51,7 @@ export default function TermsModal({ onAccepted }: TermsModalProps) {
         }}>
           <span style={{ fontSize: 24 }}>🎓</span>
         </div>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
+        <h2 id="terms-title" style={{ fontSize: 22, fontWeight: 700, color: '#1A1A2E', marginBottom: 8 }}>
           Welcome to CourseSync
         </h2>
         <p style={{ fontSize: 14, color: '#6B6B80', marginBottom: 24, lineHeight: 1.6 }}>
